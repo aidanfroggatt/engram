@@ -1,0 +1,165 @@
+# -----------------------------
+
+# OS / System files
+
+# -----------------------------
+
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# -----------------------------
+
+# Logs
+
+# -----------------------------
+
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# -----------------------------
+
+# Environment variables
+
+# -----------------------------
+
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# -----------------------------
+
+# Node / JavaScript
+
+# -----------------------------
+
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Optional: keep lockfile if you want deterministic builds
+
+#!package-lock.json
+#!yarn.lock
+#!pnpm-lock.yaml
+
+# -----------------------------
+
+# Next.js
+
+# -----------------------------
+
+.next/
+out/
+build/
+dist/
+.vercel/
+
+# Next.js cache
+
+.next/cache
+
+# -----------------------------
+
+# Turborepo
+
+# -----------------------------
+
+.turbo
+turbo-debug.log
+
+# -----------------------------
+
+# Go
+
+# -----------------------------
+
+# binaries
+
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+*.app
+
+# Go build output
+
+bin/
+build/
+
+# coverage
+
+coverage.out
+*.coverprofile
+
+# dependency directories
+
+vendor/
+
+# Go workspace
+
+go.work.sum
+
+# -----------------------------
+
+# IDE / Editor
+
+# -----------------------------
+
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+
+# -----------------------------
+
+# Testing
+
+# -----------------------------
+
+coverage/
+.nyc_output/
+
+# -----------------------------
+
+# Temporary files
+
+# -----------------------------
+
+tmp/
+temp/
+*.tmp
+*.cache
+
+# -----------------------------
+
+# Docker
+
+# -----------------------------
+
+docker-compose.override.yml
+
+# -----------------------------
+
+# Misc
+
+# -----------------------------
+
+*.local
+*.pid
+*.seed
