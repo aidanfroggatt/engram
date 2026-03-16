@@ -4,6 +4,7 @@ go 1.26.1
 
 require (
 	ariga.io/atlas v0.32.1-0.20250325101103-175b25e1c1b9 // indirect
+	connectrpc.com/connect v1.19.1 // indirect
 	entgo.io/contrib v0.7.0 // indirect
 	entgo.io/ent v0.14.5 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect

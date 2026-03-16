@@ -2,6 +2,18 @@
   "name": "@engram/proto",
   "version": "1.0.0",
   "private": true,
-  "main": "index.js",
-  "types": "index.d.ts"
+  "exports": {
+    ".": {
+      "types": "./entpb_pb.d.ts",
+      "default": "./entpb_pb.js"
+    },
+    "./connect": {
+      "types": "./entpb_connect.d.ts",
+      "default": "./entpb_connect.js"
+    }
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "^2.11.0",
+    "@connectrpc/connect": "^2.1.1"
+  }
 }
