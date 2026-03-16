@@ -3,7 +3,9 @@ package schema
 import (
 	"time"
 
+	"entgo.io/contrib/entproto"
 	"entgo.io/ent"
+	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 	"github.com/google/uuid"
@@ -14,34 +16,46 @@ type MediaAsset struct {
 	ent.Schema
 }
 
+// Annotations of the MediaAsset (Tells entproto to generate a Protobuf Message and gRPC Service)
+func (MediaAsset) Annotations() []schema.Annotation {
+	return []schema.Annotation{
+		entproto.Message(),
+		entproto.Service(),
+	}
+}
+
 // Fields of the MediaAsset.
 func (MediaAsset) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("id", uuid.UUID{}).
 			Default(uuid.New).
-			Immutable(),
+			Immutable().
+			Annotations(entproto.Field(1)),
 		field.String("user_id").
 			NotEmpty().
-			Immutable(),
+			Immutable().
+			Annotations(entproto.Field(2)),
 		field.String("b2_url").
-			NotEmpty(),
-		field.Time("capture_time"),
+			NotEmpty().
+			Annotations(entproto.Field(3)),
+		field.Time("capture_time").
+			Annotations(entproto.Field(4)),
 		field.String("mime_type").
-			NotEmpty(),
-		// We will store the PostGIS Point as a Well-Known Text (WKT) string for now
-		// to keep the initial schema simple before adding custom PostGIS types.
+			NotEmpty().
+			Annotations(entproto.Field(5)),
 		field.String("geom").
-			Optional(),
+			Optional().
+			Annotations(entproto.Field(6)),
 		field.Time("created_at").
 			Default(time.Now).
-			Immutable(),
+			Immutable().
+			Annotations(entproto.Field(7)),
 	}
 }
 
 // Indexes of the MediaAsset.
 func (MediaAsset) Indexes() []ent.Index {
 	return []ent.Index{
-		// Index user_id and capture_time together for ultra-fast timeline queries
 		index.Fields("user_id", "capture_time"),
 	}
 }
