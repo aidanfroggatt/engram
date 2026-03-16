@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package engram.upload.v1;
+
+option go_package = "engram/api/rpc;rpc";
+
+message GetUploadURLRequest {
+  string filename = 1;
+  string mime_type = 2;
+}
+
+message GetUploadURLResponse {
+  string upload_url = 1;
+  string file_key = 2;
+}
+
+service UploadService {
+  rpc GetUploadURL(GetUploadURLRequest) returns (GetUploadURLResponse) {}
+}

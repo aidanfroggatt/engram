@@ -5,8 +5,12 @@ import (
 	"log"
 	"net/http"
 
+	"connectrpc.com/connect"
+
 	"engram/api/config"
+	"engram/api/handlers"
 	"engram/api/middleware"
+	"engram/api/rpc/rpcconnect"
 )
 
 // Simple CORS middleware for local development
@@ -31,6 +35,13 @@ func main() {
 	fmt.Println("Config loaded successfully.")
 
 	auth := middleware.NewAuthMiddleware(cfg.JWKSURL)
+	
+	// Initialize the B2 Upload Server
+	uploadServer, err := handlers.NewUploadServer(cfg)
+	if err != nil {
+		log.Fatalf("Failed to initialize upload server: %v", err)
+	}
+
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/protected", func(w http.ResponseWriter, r *http.Request) {
@@ -38,7 +49,14 @@ func main() {
 		fmt.Fprintf(w, "Secure vault accessed. Authenticated User ID: %s\n", userID)
 	})
 
-	// Wrap the mux: First enforce Auth, then enforce CORS.
+	// Register the ConnectRPC Upload Service
+	path, handler := rpcconnect.NewUploadServiceHandler(
+		uploadServer,
+		connect.WithInterceptors(), // Add logging/metrics interceptors here later if needed
+	)
+	mux.Handle(path, handler)
+
+	// Wrap with Auth and CORS
 	protectedMux := auth.RequireAuth(mux)
 	corsMux := corsMiddleware(protectedMux)
 

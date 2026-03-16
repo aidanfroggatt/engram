@@ -1,17 +1,14 @@
-version: v1
+version: v2
 plugins:
-  # Generate Go base structs and ConnectRPC HTTP Handlers
-  - plugin: go
-    out: apps/api
-    opt: module=engram/api
-  - plugin: connect-go
-    out: apps/api
-    opt: module=engram/api
-
-  # Generate TypeScript base types and ConnectRPC client hooks
-  - plugin: es
+  - local: protoc-gen-es
     out: packages/proto
     opt: target=ts
-  - plugin: connect-es
+  - local: protoc-gen-connect-es
     out: packages/proto
     opt: target=ts
+  - local: protoc-gen-go
+    out: apps/api/rpc
+    opt: paths=source_relative
+  - local: protoc-gen-connect-go
+    out: apps/api/rpc
+    opt: paths=source_relative

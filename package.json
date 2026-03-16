@@ -7,7 +7,7 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
-    "generate:proto": "buf generate apps/api/ent/proto/entpb"
+    "generate:proto": "buf generate"
   },
   "devDependencies": {
     "@bufbuild/buf": "^1.66.1",
