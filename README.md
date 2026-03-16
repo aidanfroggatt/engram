@@ -1,4 +1,4 @@
-# Media Vault 
+# Engram
 
 ## Overview
 A secure, mobile-first, single-tenant media application designed to serve as a private digital journal. This project replaces a legacy reliance on Instagram for weekly life tracking, migrating the process to a fully owned, high-performance, self-hosted platform. 
