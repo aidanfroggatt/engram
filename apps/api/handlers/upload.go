@@ -15,25 +15,33 @@ import (
 
 	"engram/api/config"
 	"engram/api/middleware"
-	"engram/api/rpc" // <-- This was the missing link!
+	"engram/api/rpc/upload"
 )
 
 type UploadServer struct {
 	presignClient *s3.PresignClient
 	bucketName    string
-	demoAccountID string
 }
 
 func NewUploadServer(cfg *config.Config) (*UploadServer, error) {
-	// Configure the S3 client to point at Backblaze B2
-	customResolver := aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
+	// 1. Extract the region from your B2 endpoint (e.g., https://s3.us-east-005.backblazeb2.com)
+	// You can also just hardcode this to your specific B2 region string (like "us-east-005")
+	region := "us-east-1" // Default fallback
+	parts := strings.Split(cfg.B2Endpoint, ".")
+	if len(parts) > 1 && strings.HasPrefix(parts[1], "us-") || strings.HasPrefix(parts[1], "eu-") {
+		region = parts[1]
+	}
+
+	customResolver := aws.EndpointResolverWithOptionsFunc(func(service, reg string, options ...interface{}) (aws.Endpoint, error) {
 		return aws.Endpoint{
 			URL:               cfg.B2Endpoint,
 			HostnameImmutable: true,
+			SigningRegion:     region, // Force the signature to match B2
 		}, nil
 	})
 
 	awsCfg, err := awsconfig.LoadDefaultConfig(context.TODO(),
+		awsconfig.WithRegion(region), // Explicitly set region to fix signature mismatches
 		awsconfig.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(cfg.B2KeyID, cfg.B2AppKey, "")),
 		awsconfig.WithEndpointResolverWithOptions(customResolver),
 	)
@@ -48,23 +56,18 @@ func NewUploadServer(cfg *config.Config) (*UploadServer, error) {
 	return &UploadServer{
 		presignClient: s3.NewPresignClient(client),
 		bucketName:    cfg.B2BucketName,
-		// TODO: Replace with your actual Clerk Demo Account ID once created
-		demoAccountID: "user_demo_account_placeholder",
 	}, nil
 }
 
+// CHANGED: rpc.GetUploadURLRequest is now upload.GetUploadURLRequest
 func (s *UploadServer) GetUploadURL(
 	ctx context.Context,
-	req *connect.Request[rpc.GetUploadURLRequest],
-) (*connect.Response[rpc.GetUploadURLResponse], error) {
+	req *connect.Request[upload.GetUploadURLRequest],
+) (*connect.Response[upload.GetUploadURLResponse], error) {
 	
 	userID, ok := ctx.Value(middleware.UserIDKey).(string)
 	if !ok {
 		return nil, connect.NewError(connect.CodeUnauthenticated, fmt.Errorf("missing user identity"))
-	}
-
-	if userID == s.demoAccountID {
-		return nil, connect.NewError(connect.CodePermissionDenied, fmt.Errorf("demo account cannot upload files"))
 	}
 
 	ext := "bin"
@@ -84,7 +87,7 @@ func (s *UploadServer) GetUploadURL(
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("failed to generate upload url: %v", err))
 	}
 
-	res := connect.NewResponse(&rpc.GetUploadURLResponse{
+	res := connect.NewResponse(&upload.GetUploadURLResponse{
 		UploadUrl: presignedReq.URL,
 		FileKey:   fileKey,
 	})

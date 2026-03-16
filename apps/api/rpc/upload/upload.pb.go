@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        (unknown)
-// source: upload.proto
+// source: apps/api/proto/upload.proto
 
-package rpc
+package upload
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -31,7 +31,7 @@ type GetUploadURLRequest struct {
 
 func (x *GetUploadURLRequest) Reset() {
 	*x = GetUploadURLRequest{}
-	mi := &file_upload_proto_msgTypes[0]
+	mi := &file_apps_api_proto_upload_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -43,7 +43,7 @@ func (x *GetUploadURLRequest) String() string {
 func (*GetUploadURLRequest) ProtoMessage() {}
 
 func (x *GetUploadURLRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_upload_proto_msgTypes[0]
+	mi := &file_apps_api_proto_upload_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -56,7 +56,7 @@ func (x *GetUploadURLRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUploadURLRequest.ProtoReflect.Descriptor instead.
 func (*GetUploadURLRequest) Descriptor() ([]byte, []int) {
-	return file_upload_proto_rawDescGZIP(), []int{0}
+	return file_apps_api_proto_upload_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *GetUploadURLRequest) GetFilename() string {
@@ -83,7 +83,7 @@ type GetUploadURLResponse struct {
 
 func (x *GetUploadURLResponse) Reset() {
 	*x = GetUploadURLResponse{}
-	mi := &file_upload_proto_msgTypes[1]
+	mi := &file_apps_api_proto_upload_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -95,7 +95,7 @@ func (x *GetUploadURLResponse) String() string {
 func (*GetUploadURLResponse) ProtoMessage() {}
 
 func (x *GetUploadURLResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_upload_proto_msgTypes[1]
+	mi := &file_apps_api_proto_upload_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -108,7 +108,7 @@ func (x *GetUploadURLResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUploadURLResponse.ProtoReflect.Descriptor instead.
 func (*GetUploadURLResponse) Descriptor() ([]byte, []int) {
-	return file_upload_proto_rawDescGZIP(), []int{1}
+	return file_apps_api_proto_upload_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *GetUploadURLResponse) GetUploadUrl() string {
@@ -125,11 +125,11 @@ func (x *GetUploadURLResponse) GetFileKey() string {
 	return ""
 }
 
-var File_upload_proto protoreflect.FileDescriptor
+var File_apps_api_proto_upload_proto protoreflect.FileDescriptor
 
-const file_upload_proto_rawDesc = "" +
+const file_apps_api_proto_upload_proto_rawDesc = "" +
 	"\n" +
-	"\fupload.proto\x12\x10engram.upload.v1\"N\n" +
+	"\x1bapps/api/proto/upload.proto\x12\x10engram.upload.v1\"N\n" +
 	"\x13GetUploadURLRequest\x12\x1a\n" +
 	"\bfilename\x18\x01 \x01(\tR\bfilename\x12\x1b\n" +
 	"\tmime_type\x18\x02 \x01(\tR\bmimeType\"P\n" +
@@ -138,26 +138,26 @@ const file_upload_proto_rawDesc = "" +
 	"upload_url\x18\x01 \x01(\tR\tuploadUrl\x12\x19\n" +
 	"\bfile_key\x18\x02 \x01(\tR\afileKey2p\n" +
 	"\rUploadService\x12_\n" +
-	"\fGetUploadURL\x12%.engram.upload.v1.GetUploadURLRequest\x1a&.engram.upload.v1.GetUploadURLResponse\"\x00B\x14Z\x12engram/api/rpc;rpcb\x06proto3"
+	"\fGetUploadURL\x12%.engram.upload.v1.GetUploadURLRequest\x1a&.engram.upload.v1.GetUploadURLResponse\"\x00B\x17Z\x15engram/api/rpc/uploadb\x06proto3"
 
 var (
-	file_upload_proto_rawDescOnce sync.Once
-	file_upload_proto_rawDescData []byte
+	file_apps_api_proto_upload_proto_rawDescOnce sync.Once
+	file_apps_api_proto_upload_proto_rawDescData []byte
 )
 
-func file_upload_proto_rawDescGZIP() []byte {
-	file_upload_proto_rawDescOnce.Do(func() {
-		file_upload_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_upload_proto_rawDesc), len(file_upload_proto_rawDesc)))
+func file_apps_api_proto_upload_proto_rawDescGZIP() []byte {
+	file_apps_api_proto_upload_proto_rawDescOnce.Do(func() {
+		file_apps_api_proto_upload_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_apps_api_proto_upload_proto_rawDesc), len(file_apps_api_proto_upload_proto_rawDesc)))
 	})
-	return file_upload_proto_rawDescData
+	return file_apps_api_proto_upload_proto_rawDescData
 }
 
-var file_upload_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_upload_proto_goTypes = []any{
+var file_apps_api_proto_upload_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_apps_api_proto_upload_proto_goTypes = []any{
 	(*GetUploadURLRequest)(nil),  // 0: engram.upload.v1.GetUploadURLRequest
 	(*GetUploadURLResponse)(nil), // 1: engram.upload.v1.GetUploadURLResponse
 }
-var file_upload_proto_depIdxs = []int32{
+var file_apps_api_proto_upload_proto_depIdxs = []int32{
 	0, // 0: engram.upload.v1.UploadService.GetUploadURL:input_type -> engram.upload.v1.GetUploadURLRequest
 	1, // 1: engram.upload.v1.UploadService.GetUploadURL:output_type -> engram.upload.v1.GetUploadURLResponse
 	1, // [1:2] is the sub-list for method output_type
@@ -167,26 +167,26 @@ var file_upload_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_upload_proto_init() }
-func file_upload_proto_init() {
-	if File_upload_proto != nil {
+func init() { file_apps_api_proto_upload_proto_init() }
+func file_apps_api_proto_upload_proto_init() {
+	if File_apps_api_proto_upload_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_upload_proto_rawDesc), len(file_upload_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_apps_api_proto_upload_proto_rawDesc), len(file_apps_api_proto_upload_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_upload_proto_goTypes,
-		DependencyIndexes: file_upload_proto_depIdxs,
-		MessageInfos:      file_upload_proto_msgTypes,
+		GoTypes:           file_apps_api_proto_upload_proto_goTypes,
+		DependencyIndexes: file_apps_api_proto_upload_proto_depIdxs,
+		MessageInfos:      file_apps_api_proto_upload_proto_msgTypes,
 	}.Build()
-	File_upload_proto = out.File
-	file_upload_proto_goTypes = nil
-	file_upload_proto_depIdxs = nil
+	File_apps_api_proto_upload_proto = out.File
+	file_apps_api_proto_upload_proto_goTypes = nil
+	file_apps_api_proto_upload_proto_depIdxs = nil
 }

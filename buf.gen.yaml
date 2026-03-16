@@ -1,14 +1,8 @@
 version: v2
 plugins:
-  - local: protoc-gen-es
-    out: packages/proto
-    opt: target=ts
-  - local: protoc-gen-connect-es
-    out: packages/proto
-    opt: target=ts
   - local: protoc-gen-go
-    out: apps/api/rpc
+    out: apps/api
     opt: paths=source_relative
   - local: protoc-gen-connect-go
-    out: apps/api/rpc
+    out: apps/api
     opt: paths=source_relative

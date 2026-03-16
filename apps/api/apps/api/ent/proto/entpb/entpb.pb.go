@@ -4,7 +4,7 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        (unknown)
-// source: entpb.proto
+// source: apps/api/ent/proto/entpb/entpb.proto
 
 package entpb
 
@@ -59,11 +59,11 @@ func (x GetMediaAssetRequest_View) String() string {
 }
 
 func (GetMediaAssetRequest_View) Descriptor() protoreflect.EnumDescriptor {
-	return file_entpb_proto_enumTypes[0].Descriptor()
+	return file_apps_api_ent_proto_entpb_entpb_proto_enumTypes[0].Descriptor()
 }
 
 func (GetMediaAssetRequest_View) Type() protoreflect.EnumType {
-	return &file_entpb_proto_enumTypes[0]
+	return &file_apps_api_ent_proto_entpb_entpb_proto_enumTypes[0]
 }
 
 func (x GetMediaAssetRequest_View) Number() protoreflect.EnumNumber {
@@ -72,7 +72,7 @@ func (x GetMediaAssetRequest_View) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use GetMediaAssetRequest_View.Descriptor instead.
 func (GetMediaAssetRequest_View) EnumDescriptor() ([]byte, []int) {
-	return file_entpb_proto_rawDescGZIP(), []int{2, 0}
+	return file_apps_api_ent_proto_entpb_entpb_proto_rawDescGZIP(), []int{2, 0}
 }
 
 type ListMediaAssetRequest_View int32
@@ -108,11 +108,11 @@ func (x ListMediaAssetRequest_View) String() string {
 }
 
 func (ListMediaAssetRequest_View) Descriptor() protoreflect.EnumDescriptor {
-	return file_entpb_proto_enumTypes[1].Descriptor()
+	return file_apps_api_ent_proto_entpb_entpb_proto_enumTypes[1].Descriptor()
 }
 
 func (ListMediaAssetRequest_View) Type() protoreflect.EnumType {
-	return &file_entpb_proto_enumTypes[1]
+	return &file_apps_api_ent_proto_entpb_entpb_proto_enumTypes[1]
 }
 
 func (x ListMediaAssetRequest_View) Number() protoreflect.EnumNumber {
@@ -121,7 +121,7 @@ func (x ListMediaAssetRequest_View) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ListMediaAssetRequest_View.Descriptor instead.
 func (ListMediaAssetRequest_View) EnumDescriptor() ([]byte, []int) {
-	return file_entpb_proto_rawDescGZIP(), []int{5, 0}
+	return file_apps_api_ent_proto_entpb_entpb_proto_rawDescGZIP(), []int{5, 0}
 }
 
 type MediaAsset struct {
@@ -139,7 +139,7 @@ type MediaAsset struct {
 
 func (x *MediaAsset) Reset() {
 	*x = MediaAsset{}
-	mi := &file_entpb_proto_msgTypes[0]
+	mi := &file_apps_api_ent_proto_entpb_entpb_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -151,7 +151,7 @@ func (x *MediaAsset) String() string {
 func (*MediaAsset) ProtoMessage() {}
 
 func (x *MediaAsset) ProtoReflect() protoreflect.Message {
-	mi := &file_entpb_proto_msgTypes[0]
+	mi := &file_apps_api_ent_proto_entpb_entpb_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -164,7 +164,7 @@ func (x *MediaAsset) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MediaAsset.ProtoReflect.Descriptor instead.
 func (*MediaAsset) Descriptor() ([]byte, []int) {
-	return file_entpb_proto_rawDescGZIP(), []int{0}
+	return file_apps_api_ent_proto_entpb_entpb_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *MediaAsset) GetId() []byte {
@@ -225,7 +225,7 @@ type CreateMediaAssetRequest struct {
 
 func (x *CreateMediaAssetRequest) Reset() {
 	*x = CreateMediaAssetRequest{}
-	mi := &file_entpb_proto_msgTypes[1]
+	mi := &file_apps_api_ent_proto_entpb_entpb_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -237,7 +237,7 @@ func (x *CreateMediaAssetRequest) String() string {
 func (*CreateMediaAssetRequest) ProtoMessage() {}
 
 func (x *CreateMediaAssetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_entpb_proto_msgTypes[1]
+	mi := &file_apps_api_ent_proto_entpb_entpb_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -250,7 +250,7 @@ func (x *CreateMediaAssetRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateMediaAssetRequest.ProtoReflect.Descriptor instead.
 func (*CreateMediaAssetRequest) Descriptor() ([]byte, []int) {
-	return file_entpb_proto_rawDescGZIP(), []int{1}
+	return file_apps_api_ent_proto_entpb_entpb_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *CreateMediaAssetRequest) GetMediaAsset() *MediaAsset {
@@ -270,7 +270,7 @@ type GetMediaAssetRequest struct {
 
 func (x *GetMediaAssetRequest) Reset() {
 	*x = GetMediaAssetRequest{}
-	mi := &file_entpb_proto_msgTypes[2]
+	mi := &file_apps_api_ent_proto_entpb_entpb_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -282,7 +282,7 @@ func (x *GetMediaAssetRequest) String() string {
 func (*GetMediaAssetRequest) ProtoMessage() {}
 
 func (x *GetMediaAssetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_entpb_proto_msgTypes[2]
+	mi := &file_apps_api_ent_proto_entpb_entpb_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -295,7 +295,7 @@ func (x *GetMediaAssetRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMediaAssetRequest.ProtoReflect.Descriptor instead.
 func (*GetMediaAssetRequest) Descriptor() ([]byte, []int) {
-	return file_entpb_proto_rawDescGZIP(), []int{2}
+	return file_apps_api_ent_proto_entpb_entpb_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *GetMediaAssetRequest) GetId() []byte {
@@ -321,7 +321,7 @@ type UpdateMediaAssetRequest struct {
 
 func (x *UpdateMediaAssetRequest) Reset() {
 	*x = UpdateMediaAssetRequest{}
-	mi := &file_entpb_proto_msgTypes[3]
+	mi := &file_apps_api_ent_proto_entpb_entpb_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -333,7 +333,7 @@ func (x *UpdateMediaAssetRequest) String() string {
 func (*UpdateMediaAssetRequest) ProtoMessage() {}
 
 func (x *UpdateMediaAssetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_entpb_proto_msgTypes[3]
+	mi := &file_apps_api_ent_proto_entpb_entpb_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -346,7 +346,7 @@ func (x *UpdateMediaAssetRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateMediaAssetRequest.ProtoReflect.Descriptor instead.
 func (*UpdateMediaAssetRequest) Descriptor() ([]byte, []int) {
-	return file_entpb_proto_rawDescGZIP(), []int{3}
+	return file_apps_api_ent_proto_entpb_entpb_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *UpdateMediaAssetRequest) GetMediaAsset() *MediaAsset {
@@ -365,7 +365,7 @@ type DeleteMediaAssetRequest struct {
 
 func (x *DeleteMediaAssetRequest) Reset() {
 	*x = DeleteMediaAssetRequest{}
-	mi := &file_entpb_proto_msgTypes[4]
+	mi := &file_apps_api_ent_proto_entpb_entpb_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -377,7 +377,7 @@ func (x *DeleteMediaAssetRequest) String() string {
 func (*DeleteMediaAssetRequest) ProtoMessage() {}
 
 func (x *DeleteMediaAssetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_entpb_proto_msgTypes[4]
+	mi := &file_apps_api_ent_proto_entpb_entpb_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -390,7 +390,7 @@ func (x *DeleteMediaAssetRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteMediaAssetRequest.ProtoReflect.Descriptor instead.
 func (*DeleteMediaAssetRequest) Descriptor() ([]byte, []int) {
-	return file_entpb_proto_rawDescGZIP(), []int{4}
+	return file_apps_api_ent_proto_entpb_entpb_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *DeleteMediaAssetRequest) GetId() []byte {
@@ -411,7 +411,7 @@ type ListMediaAssetRequest struct {
 
 func (x *ListMediaAssetRequest) Reset() {
 	*x = ListMediaAssetRequest{}
-	mi := &file_entpb_proto_msgTypes[5]
+	mi := &file_apps_api_ent_proto_entpb_entpb_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -423,7 +423,7 @@ func (x *ListMediaAssetRequest) String() string {
 func (*ListMediaAssetRequest) ProtoMessage() {}
 
 func (x *ListMediaAssetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_entpb_proto_msgTypes[5]
+	mi := &file_apps_api_ent_proto_entpb_entpb_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -436,7 +436,7 @@ func (x *ListMediaAssetRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMediaAssetRequest.ProtoReflect.Descriptor instead.
 func (*ListMediaAssetRequest) Descriptor() ([]byte, []int) {
-	return file_entpb_proto_rawDescGZIP(), []int{5}
+	return file_apps_api_ent_proto_entpb_entpb_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ListMediaAssetRequest) GetPageSize() int32 {
@@ -470,7 +470,7 @@ type ListMediaAssetResponse struct {
 
 func (x *ListMediaAssetResponse) Reset() {
 	*x = ListMediaAssetResponse{}
-	mi := &file_entpb_proto_msgTypes[6]
+	mi := &file_apps_api_ent_proto_entpb_entpb_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -482,7 +482,7 @@ func (x *ListMediaAssetResponse) String() string {
 func (*ListMediaAssetResponse) ProtoMessage() {}
 
 func (x *ListMediaAssetResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_entpb_proto_msgTypes[6]
+	mi := &file_apps_api_ent_proto_entpb_entpb_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -495,7 +495,7 @@ func (x *ListMediaAssetResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMediaAssetResponse.ProtoReflect.Descriptor instead.
 func (*ListMediaAssetResponse) Descriptor() ([]byte, []int) {
-	return file_entpb_proto_rawDescGZIP(), []int{6}
+	return file_apps_api_ent_proto_entpb_entpb_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ListMediaAssetResponse) GetMediaAssetList() []*MediaAsset {
@@ -521,7 +521,7 @@ type BatchCreateMediaAssetsRequest struct {
 
 func (x *BatchCreateMediaAssetsRequest) Reset() {
 	*x = BatchCreateMediaAssetsRequest{}
-	mi := &file_entpb_proto_msgTypes[7]
+	mi := &file_apps_api_ent_proto_entpb_entpb_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -533,7 +533,7 @@ func (x *BatchCreateMediaAssetsRequest) String() string {
 func (*BatchCreateMediaAssetsRequest) ProtoMessage() {}
 
 func (x *BatchCreateMediaAssetsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_entpb_proto_msgTypes[7]
+	mi := &file_apps_api_ent_proto_entpb_entpb_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -546,7 +546,7 @@ func (x *BatchCreateMediaAssetsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BatchCreateMediaAssetsRequest.ProtoReflect.Descriptor instead.
 func (*BatchCreateMediaAssetsRequest) Descriptor() ([]byte, []int) {
-	return file_entpb_proto_rawDescGZIP(), []int{7}
+	return file_apps_api_ent_proto_entpb_entpb_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *BatchCreateMediaAssetsRequest) GetRequests() []*CreateMediaAssetRequest {
@@ -565,7 +565,7 @@ type BatchCreateMediaAssetsResponse struct {
 
 func (x *BatchCreateMediaAssetsResponse) Reset() {
 	*x = BatchCreateMediaAssetsResponse{}
-	mi := &file_entpb_proto_msgTypes[8]
+	mi := &file_apps_api_ent_proto_entpb_entpb_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -577,7 +577,7 @@ func (x *BatchCreateMediaAssetsResponse) String() string {
 func (*BatchCreateMediaAssetsResponse) ProtoMessage() {}
 
 func (x *BatchCreateMediaAssetsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_entpb_proto_msgTypes[8]
+	mi := &file_apps_api_ent_proto_entpb_entpb_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -590,7 +590,7 @@ func (x *BatchCreateMediaAssetsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BatchCreateMediaAssetsResponse.ProtoReflect.Descriptor instead.
 func (*BatchCreateMediaAssetsResponse) Descriptor() ([]byte, []int) {
-	return file_entpb_proto_rawDescGZIP(), []int{8}
+	return file_apps_api_ent_proto_entpb_entpb_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *BatchCreateMediaAssetsResponse) GetMediaAssets() []*MediaAsset {
@@ -600,11 +600,11 @@ func (x *BatchCreateMediaAssetsResponse) GetMediaAssets() []*MediaAsset {
 	return nil
 }
 
-var File_entpb_proto protoreflect.FileDescriptor
+var File_apps_api_ent_proto_entpb_entpb_proto protoreflect.FileDescriptor
 
-const file_entpb_proto_rawDesc = "" +
+const file_apps_api_ent_proto_entpb_entpb_proto_rawDesc = "" +
 	"\n" +
-	"\ventpb.proto\x12\x05entpb\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\"\x95\x02\n" +
+	"$apps/api/ent/proto/entpb/entpb.proto\x12\x05entpb\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\"\x95\x02\n" +
 	"\n" +
 	"MediaAsset\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12\x17\n" +
@@ -655,20 +655,20 @@ const file_entpb_proto_rawDesc = "" +
 	"\vBatchCreate\x12$.entpb.BatchCreateMediaAssetsRequest\x1a%.entpb.BatchCreateMediaAssetsResponseB\x1cZ\x1aengram/api/ent/proto/entpbb\x06proto3"
 
 var (
-	file_entpb_proto_rawDescOnce sync.Once
-	file_entpb_proto_rawDescData []byte
+	file_apps_api_ent_proto_entpb_entpb_proto_rawDescOnce sync.Once
+	file_apps_api_ent_proto_entpb_entpb_proto_rawDescData []byte
 )
 
-func file_entpb_proto_rawDescGZIP() []byte {
-	file_entpb_proto_rawDescOnce.Do(func() {
-		file_entpb_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_entpb_proto_rawDesc), len(file_entpb_proto_rawDesc)))
+func file_apps_api_ent_proto_entpb_entpb_proto_rawDescGZIP() []byte {
+	file_apps_api_ent_proto_entpb_entpb_proto_rawDescOnce.Do(func() {
+		file_apps_api_ent_proto_entpb_entpb_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_apps_api_ent_proto_entpb_entpb_proto_rawDesc), len(file_apps_api_ent_proto_entpb_entpb_proto_rawDesc)))
 	})
-	return file_entpb_proto_rawDescData
+	return file_apps_api_ent_proto_entpb_entpb_proto_rawDescData
 }
 
-var file_entpb_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_entpb_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
-var file_entpb_proto_goTypes = []any{
+var file_apps_api_ent_proto_entpb_entpb_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_apps_api_ent_proto_entpb_entpb_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_apps_api_ent_proto_entpb_entpb_proto_goTypes = []any{
 	(GetMediaAssetRequest_View)(0),         // 0: entpb.GetMediaAssetRequest.View
 	(ListMediaAssetRequest_View)(0),        // 1: entpb.ListMediaAssetRequest.View
 	(*MediaAsset)(nil),                     // 2: entpb.MediaAsset
@@ -684,7 +684,7 @@ var file_entpb_proto_goTypes = []any{
 	(*wrapperspb.StringValue)(nil),         // 12: google.protobuf.StringValue
 	(*emptypb.Empty)(nil),                  // 13: google.protobuf.Empty
 }
-var file_entpb_proto_depIdxs = []int32{
+var file_apps_api_ent_proto_entpb_entpb_proto_depIdxs = []int32{
 	11, // 0: entpb.MediaAsset.capture_time:type_name -> google.protobuf.Timestamp
 	12, // 1: entpb.MediaAsset.geom:type_name -> google.protobuf.StringValue
 	11, // 2: entpb.MediaAsset.created_at:type_name -> google.protobuf.Timestamp
@@ -714,27 +714,27 @@ var file_entpb_proto_depIdxs = []int32{
 	0,  // [0:10] is the sub-list for field type_name
 }
 
-func init() { file_entpb_proto_init() }
-func file_entpb_proto_init() {
-	if File_entpb_proto != nil {
+func init() { file_apps_api_ent_proto_entpb_entpb_proto_init() }
+func file_apps_api_ent_proto_entpb_entpb_proto_init() {
+	if File_apps_api_ent_proto_entpb_entpb_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_entpb_proto_rawDesc), len(file_entpb_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_apps_api_ent_proto_entpb_entpb_proto_rawDesc), len(file_apps_api_ent_proto_entpb_entpb_proto_rawDesc)),
 			NumEnums:      2,
 			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_entpb_proto_goTypes,
-		DependencyIndexes: file_entpb_proto_depIdxs,
-		EnumInfos:         file_entpb_proto_enumTypes,
-		MessageInfos:      file_entpb_proto_msgTypes,
+		GoTypes:           file_apps_api_ent_proto_entpb_entpb_proto_goTypes,
+		DependencyIndexes: file_apps_api_ent_proto_entpb_entpb_proto_depIdxs,
+		EnumInfos:         file_apps_api_ent_proto_entpb_entpb_proto_enumTypes,
+		MessageInfos:      file_apps_api_ent_proto_entpb_entpb_proto_msgTypes,
 	}.Build()
-	File_entpb_proto = out.File
-	file_entpb_proto_goTypes = nil
-	file_entpb_proto_depIdxs = nil
+	File_apps_api_ent_proto_entpb_entpb_proto = out.File
+	file_apps_api_ent_proto_entpb_entpb_proto_goTypes = nil
+	file_apps_api_ent_proto_entpb_entpb_proto_depIdxs = nil
 }
