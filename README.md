@@ -16,7 +16,7 @@ It is designed as a polyglot monorepo, utilizing a mathematically strict API con
 ## High-Level System Architecture
 
 ### The Tech Stack
-* **Frontend:** Next.js 15 (App Router), TailwindCSS, Shadcn UI (Manual Install).
+* **Frontend:** Next.js 15 (App Router), TailwindCSS, Shadcn UI.
 * **API Contract:** ConnectRPC (Protocol Buffers).
 * **Backend:** Go (Standard Library `net/http`).
 * **ORM & Schema:** `Ent` (with `entproto` to auto-generate `.proto` files from Go structs).
@@ -35,9 +35,8 @@ To bypass serverless execution limits and maintain a highly performant Go backen
 ---
 
 ## Conceptual Data Models
-* **Week:** The core organizational unit. Contains a start date, end date, and an optional user-defined summary.
-* **MediaAsset:** Individual photos or videos. Belongs to a Week. Contains B2 storage URL, timestamp, EXIF data, and PostGIS geometry (Point) for location.
-* **Tag:** (Future feature) Categorical labels (e.g., training, concert, project) applied to MediaAssets, eventually populated via an async AI vision pipeline.
+* **MediaAsset:** The primary entity and single source of truth. Contains the secure B2 storage URL, exact `capture_time` (extracted from EXIF for dynamic chronological sorting), `mime_type`, and a PostGIS geometry (`Point`) for geospatial mapping. The timeline dynamically groups these assets by day, week, or month at the query level.
+* **Tag:** (Future feature) Categorical labels (e.g., training, concert, project) applied to MediaAssets via an asynchronous Go worker and AI vision pipeline.
 
 ---
 
@@ -48,24 +47,3 @@ To bypass serverless execution limits and maintain a highly performant Go backen
 * `packages/proto/` - Generated ConnectRPC interfaces & TS definitions
 * `package.json` - Root Turborepo config
 * `turbo.json` - Task runner configuration
-
----
-
-## Development Phases
-
-### Phase 1: Infrastructure & Contract (Current)
-* Initialize Turborepo structure.
-* Define the database schema using Go `Ent`.
-* Configure `entproto` to generate the `.proto` files and ConnectRPC handlers.
-* Set up Clerk authentication and Go JWT middleware verification.
-
-### Phase 2: The Core Engine & Migration (MVP)
-* Build the client-side `exifr` parsing logic in Next.js.
-* Implement the Backblaze B2 Pre-Signed URL upload pipeline.
-* Develop the timeline UI (Week / Day views).
-* Execute the legacy JSON/media migration script.
-
-### Phase 3: The Polish & Cutting Edge
-* Implement habit-enforcement UI lockouts.
-* Integrate PostGIS queries to map media assets on a 3D geospatial globe.
-* Build asynchronous Go workers for AI-driven auto-tagging.
