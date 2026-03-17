@@ -1,247 +1,246 @@
 "use client";
 
-import { extractMetadata, ParsedMediaMetadata } from "@/lib/exif";
-import { useAuth, UserButton } from "@clerk/nextjs";
-import { useState } from "react";
+import { UserButton } from "@clerk/nextjs";
+import {
+  format,
+  startOfDay,
+  startOfMonth,
+  startOfWeek,
+  startOfYear,
+} from "date-fns";
+import { MapPin, PlayCircle, Plus } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useMemo, useState } from "react";
 
-// 1. Strict Types
-type FileUploadStatus = "idle" | "uploading" | "success" | "error";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useVaultGallery } from "@/hooks/use-vault-gallery";
+import { MediaAsset } from "@/types/media";
 
-type FileState = ParsedMediaMetadata & {
-  file: File;
-  uploadStatus: FileUploadStatus;
-  fileKey?: string;
-};
+type TimeScale = "day" | "week" | "month" | "year";
 
-// These must match the JSON tags in your Go handlers
-interface GoTicketResponse {
-  uploadUrl: string;
-  fileKey: string;
-}
+// --- Sub-Component: MediaRenderer ---
+function MediaRenderer({
+  asset,
+  isThumbnail = false,
+}: {
+  asset: MediaAsset;
+  isThumbnail?: boolean;
+}) {
+  const isVideo = asset.mimeType.startsWith("video/");
 
-export default function Home() {
-  const { getToken } = useAuth();
-
-  const [goResponse, setGoResponse] = useState<string>("");
-  const [parsedFiles, setParsedFiles] = useState<FileState[]>([]);
-  const [isParsing, setIsParsing] = useState<boolean>(false);
-
-  // --- Auth Test ---
-  const testGoConnection = async (): Promise<void> => {
-    try {
-      const token = await getToken();
-      if (!token) {
-        setGoResponse("No Clerk token found. Please sign in.");
-        return;
-      }
-
-      const res = await fetch("http://localhost:8080/protected", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const text = await res.text();
-      setGoResponse(`Status: ${res.status} | Go Says: ${text}`);
-    } catch (error) {
-      console.error(error);
-      setGoResponse("Network error: Is the Go API running on :8080?");
-    }
-  };
-
-  // --- EXIF Selection ---
-  const handleFileSelect = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ): Promise<void> => {
-    if (!e.target.files || e.target.files.length === 0) return;
-    setIsParsing(true);
-
-    try {
-      const filesArray = Array.from(e.target.files);
-      const results: FileState[] = await Promise.all(
-        filesArray.map(async (file) => {
-          const meta = await extractMetadata(file);
-          return { ...meta, file, uploadStatus: "idle" };
-        }),
-      );
-      setParsedFiles(results);
-    } catch (error) {
-      console.error("Parsing error:", error);
-    } finally {
-      setIsParsing(false);
-    }
-  };
-
-  // --- The New JSON Upload Pipeline ---
-  const handleUpload = async (index: number): Promise<void> => {
-    const target = parsedFiles[index];
-    if (!target) return;
-
-    const updateStatus = (status: FileUploadStatus, key?: string): void => {
-      setParsedFiles((prev) => {
-        const newFiles = [...prev];
-        const existing = newFiles[index];
-        if (existing) {
-          newFiles[index] = { ...existing, uploadStatus: status, fileKey: key };
-        }
-        return newFiles;
-      });
-    };
-
-    updateStatus("uploading");
-
-    try {
-      const token = await getToken();
-      if (!token) throw new Error("Authentication token missing.");
-
-      // A. Get Ticket (New JSON Endpoint)
-      const ticketRes = await fetch("http://localhost:8080/api/upload/url", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          filename: target.fileName,
-          mimeType: target.mimeType,
-        }),
-      });
-
-      if (!ticketRes.ok) {
-        throw new Error(`Failed to get B2 ticket. Status: ${ticketRes.status}`);
-      }
-
-      const ticket = (await ticketRes.json()) as GoTicketResponse;
-
-      // B. Stream to B2
-      const b2Res = await fetch(ticket.uploadUrl, {
-        method: "PUT",
-        body: target.file,
-        headers: { "Content-Type": target.mimeType },
-      });
-
-      if (!b2Res.ok) {
-        throw new Error(`B2 Storage Error (${b2Res.status})`);
-      }
-
-      // C. Commit to Neon (New JSON Endpoint)
-      const commitRes = await fetch("http://localhost:8080/api/upload/commit", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          fileKey: ticket.fileKey,
-          mimeType: target.mimeType,
-          captureTime: target.captureTime.toISOString(),
-          latitude: target.latitude,
-          longitude: target.longitude,
-        }),
-      });
-
-      if (!commitRes.ok) {
-        throw new Error(`Database commit failed. Status: ${commitRes.status}`);
-      }
-
-      updateStatus("success", ticket.fileKey);
-    } catch (error) {
-      console.error("Upload failed:", error);
-      updateStatus("error");
-    }
-  };
+  if (isVideo) {
+    return (
+      <div className="relative w-full h-full bg-black flex items-center justify-center">
+        <video
+          src={`${asset.url}${isThumbnail ? "#t=0.001" : ""}`}
+          className="w-full h-full object-cover"
+          controls={!isThumbnail}
+          autoPlay={!isThumbnail}
+          preload="metadata"
+          playsInline
+        />
+        {isThumbnail && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/10">
+            <PlayCircle className="w-8 h-8 text-white/80 drop-shadow-md" />
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
-    <main className="flex min-h-screen flex-col items-center py-12 px-4 bg-zinc-950 text-white font-sans">
-      <div className="absolute top-4 right-4">
-        <UserButton />
+    <Image
+      src={asset.url}
+      alt={asset.fileKey}
+      fill
+      unoptimized
+      className={isThumbnail ? "object-cover" : "object-contain"}
+    />
+  );
+}
+
+// --- Main Page ---
+
+export default function GalleryPage() {
+  const { media, isLoading } = useVaultGallery();
+  const [timeScale, setTimeScale] = useState<TimeScale>("week");
+
+  const groupedMedia = useMemo(() => {
+    if (!media.length) return {};
+    const groups: Record<string, MediaAsset[]> = {};
+
+    const sorted = [...media].sort(
+      (a, b) =>
+        new Date(b.captureTime).getTime() - new Date(a.captureTime).getTime(),
+    );
+
+    sorted.forEach((item) => {
+      const date = new Date(item.captureTime);
+      let key = "";
+      switch (timeScale) {
+        case "day":
+          key = format(startOfDay(date), "MMM dd, yyyy");
+          break;
+        case "week":
+          key = `Week of ${format(startOfWeek(date, { weekStartsOn: 1 }), "MMM dd")}`;
+          break;
+        case "month":
+          key = format(startOfMonth(date), "MMMM yyyy");
+          break;
+        case "year":
+          key = format(startOfYear(date), "yyyy");
+          break;
+      }
+      if (!groups[key]) groups[key] = [];
+      groups[key]?.push(item);
+    });
+    return groups;
+  }, [media, timeScale]);
+
+  if (isLoading)
+    return (
+      <div className="p-8 font-mono text-[10px] uppercase tracking-widest animate-pulse">
+        Establishing Connection...
       </div>
+    );
 
-      <h1 className="text-4xl font-black mb-12 tracking-widest uppercase text-zinc-100">
-        Engram Vault
-      </h1>
-
-      <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
-          <h2 className="text-lg font-bold mb-4 text-zinc-300">
-            1. Auth Connection
-          </h2>
-          <button
-            onClick={testGoConnection}
-            className="w-full px-4 py-3 bg-zinc-100 text-black hover:bg-zinc-300 rounded-lg text-sm font-black uppercase transition-colors mb-4"
-          >
-            Ping Go Server
-          </button>
-          {goResponse && (
-            <div className="p-3 bg-black rounded-lg font-mono text-xs break-all text-zinc-400 border border-zinc-800">
-              {goResponse}
-            </div>
-          )}
+  return (
+    <div className="min-h-screen bg-background text-foreground p-4 md:p-8">
+      <header className="flex items-center justify-between mb-8 border-b pb-4">
+        <div>
+          <h1 className="text-lg font-bold uppercase tracking-tighter">
+            Vault Gallery
+          </h1>
+          <p className="text-[10px] font-mono text-muted-foreground uppercase">
+            {media.length} nodes active
+          </p>
         </div>
-
-        <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
-          <h2 className="text-lg font-bold mb-4 text-zinc-300">
-            2. EXIF Extraction
-          </h2>
-          <label className="flex items-center justify-center w-full cursor-pointer px-4 py-8 border-2 border-dashed border-zinc-700 hover:border-zinc-500 rounded-lg transition-colors bg-black/50">
-            <span className="text-sm font-bold text-zinc-500 uppercase tracking-wider">
-              {isParsing ? "Parsing..." : "Select Media"}
-            </span>
-            <input
-              type="file"
-              className="hidden"
-              multiple
-              accept="image/*,video/*"
-              onChange={handleFileSelect}
-              disabled={isParsing}
-            />
-          </label>
+        <div className="flex items-center gap-4">
+          <Link href="/upload">
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-2 uppercase text-[10px] font-bold"
+            >
+              <Plus className="w-3 h-3" /> Add Media
+            </Button>
+          </Link>
+          <UserButton />
         </div>
-      </div>
+      </header>
 
-      {parsedFiles.length > 0 && (
-        <div className="w-full max-w-4xl mt-12">
-          <h3 className="text-xs font-black mb-4 text-zinc-600 uppercase tracking-widest border-b border-zinc-800 pb-2">
-            Ingestion Pipeline
-          </h3>
-          <div className="grid gap-3">
-            {parsedFiles.map((file, idx) => (
-              <div
-                key={idx}
-                className="bg-zinc-900 p-4 rounded-xl border border-zinc-800 flex justify-between items-center"
+      <div className="mb-12">
+        <Tabs
+          value={timeScale}
+          onValueChange={(v) => setTimeScale(v as TimeScale)}
+        >
+          <TabsList className="bg-muted/50">
+            {["day", "week", "month", "year"].map((t) => (
+              <TabsTrigger
+                key={t}
+                value={t}
+                className="text-[10px] uppercase font-bold px-6"
               >
-                <div className="overflow-hidden pr-4">
-                  <p className="font-bold text-zinc-100 truncate text-sm">
-                    {file.fileName}
-                  </p>
-                  <p className="text-zinc-500 text-[10px] font-mono uppercase mt-1">
-                    {file.captureTime.toLocaleDateString()} • {file.mimeType}
-                  </p>
-                </div>
-
-                <div className="flex-shrink-0">
-                  {file.uploadStatus === "success" ? (
-                    <span className="text-[10px] font-mono text-green-400 bg-green-400/10 px-3 py-1.5 rounded-md">
-                      VAULTED: {file.fileKey?.split("/").pop()}
-                    </span>
-                  ) : file.uploadStatus === "error" ? (
-                    <span className="text-[10px] font-mono text-red-400 bg-red-400/10 px-3 py-1.5 rounded-md">
-                      FAILED
-                    </span>
-                  ) : (
-                    <button
-                      onClick={() => handleUpload(idx)}
-                      disabled={file.uploadStatus === "uploading"}
-                      className="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold uppercase hover:bg-blue-500 disabled:opacity-50 transition-colors"
-                    >
-                      {file.uploadStatus === "uploading"
-                        ? "Streaming..."
-                        : "Upload to B2"}
-                    </button>
-                  )}
-                </div>
-              </div>
+                {t}
+              </TabsTrigger>
             ))}
-          </div>
-        </div>
-      )}
-    </main>
+          </TabsList>
+        </Tabs>
+      </div>
+
+      <div className="space-y-12 pb-24">
+        {Object.entries(groupedMedia).map(([label, assets]) => (
+          <section key={label}>
+            <div className="flex items-center gap-4 mb-4">
+              <h2 className="text-sm font-bold uppercase tracking-widest">
+                {label}
+              </h2>
+              <div className="h-px flex-1 bg-border" />
+              <span className="text-[10px] font-mono text-muted-foreground">
+                {assets.length} items
+              </span>
+            </div>
+
+            <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-8 gap-2">
+              {assets.map((asset) => (
+                <Dialog key={asset.id}>
+                  <DialogTrigger asChild>
+                    <div className="aspect-square relative bg-muted cursor-pointer hover:ring-1 hover:ring-primary transition-all rounded overflow-hidden">
+                      <MediaRenderer asset={asset} isThumbnail={true} />
+                      {asset.latitude && (
+                        <div className="absolute top-1 right-1 bg-black/40 p-1 rounded-sm">
+                          <MapPin className="w-2.5 h-2.5 text-white" />
+                        </div>
+                      )}
+                    </div>
+                  </DialogTrigger>
+
+                  <DialogContent className="max-w-4xl p-6 bg-zinc-950 border-white/10">
+                    <DialogHeader className="sr-only">
+                      <DialogTitle>
+                        Asset Details for {asset.fileKey}
+                      </DialogTitle>
+                    </DialogHeader>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-2">
+                      <div className="md:col-span-2 aspect-video relative bg-black rounded-lg overflow-hidden border border-white/5">
+                        <MediaRenderer asset={asset} isThumbnail={false} />
+                      </div>
+
+                      <div className="space-y-4">
+                        <div className="space-y-1 border-b border-white/5 pb-4">
+                          <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">
+                            Context Info
+                          </p>
+                          <h3 className="text-xs font-bold uppercase italic text-zinc-300">
+                            File Metadata
+                          </h3>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-3 text-[10px] font-mono uppercase">
+                          <div className="p-3 bg-white/5 rounded">
+                            <p className="text-zinc-500 mb-1">Captured</p>
+                            <p className="text-zinc-200">
+                              {format(
+                                new Date(asset.captureTime),
+                                "yyyy-MM-dd HH:mm:ss",
+                              )}
+                            </p>
+                          </div>
+                          {asset.latitude && (
+                            <div className="p-3 bg-white/5 rounded border border-blue-500/20">
+                              <p className="text-blue-500/60 mb-1">Location</p>
+                              <p className="text-blue-400">
+                                {asset.latitude.toFixed(4)},{" "}
+                                {asset.longitude?.toFixed(4)}
+                              </p>
+                            </div>
+                          )}
+                          <div className="p-3 bg-white/5 rounded">
+                            <p className="text-zinc-500 mb-1">File ID</p>
+                            <p className="text-zinc-200 truncate">
+                              {asset.fileKey.split("/").pop()}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
+    </div>
   );
 }

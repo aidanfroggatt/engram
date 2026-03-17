@@ -16,10 +16,22 @@ import (
 
 	"engram/api/config"
 	"engram/api/ent"
+	"engram/api/ent/mediaasset"
 	"engram/api/middleware"
 )
 
-// Request/Response Structs for JSON
+// --- Request/Response Structs ---
+
+type MediaResponse struct {
+	ID          string   `json:"id"`
+	FileKey     string   `json:"fileKey"`
+	MimeType    string   `json:"mimeType"`
+	CaptureTime string   `json:"captureTime"`
+	Latitude    *float64 `json:"latitude"`
+	Longitude   *float64 `json:"longitude"`
+	URL         string   `json:"url"` 
+}
+
 type GetUploadURLRequest struct {
 	Filename string `json:"filename"`
 	MimeType string `json:"mimeType"`
@@ -38,13 +50,15 @@ type CommitMediaRequest struct {
 	Longitude   *float64 `json:"longitude"`
 }
 
-type UploadServer struct {
+// --- Server Definition ---
+
+type MediaServer struct {
 	presignClient *s3.PresignClient
 	bucketName    string
 	db            *ent.Client
 }
 
-func NewUploadServer(cfg *config.Config, db *ent.Client) (*UploadServer, error) {
+func NewMediaServer(cfg *config.Config, db *ent.Client) (*MediaServer, error) {
 	region := "us-east-1"
 	parts := strings.Split(cfg.B2Endpoint, ".")
 	if len(parts) > 1 && (strings.HasPrefix(parts[1], "us-") || strings.HasPrefix(parts[1], "eu-")) {
@@ -64,15 +78,68 @@ func NewUploadServer(cfg *config.Config, db *ent.Client) (*UploadServer, error) 
 		o.UsePathStyle = true
 	})
 
-	return &UploadServer{
+	return &MediaServer{
 		presignClient: s3.NewPresignClient(client),
 		bucketName:    cfg.B2BucketName,
 		db:            db,
 	}, nil
 }
 
-// 1. Get the B2 ticket (JSON Handler)
-func (s *UploadServer) HandleGetUploadURL(w http.ResponseWriter, r *http.Request) {
+// --- Handlers ---
+
+// HandleListMedia fetches assets and generates temporary download URLs
+func (s *MediaServer) HandleListMedia(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	userID, ok := ctx.Value(middleware.UserIDKey).(string)
+	if !ok {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	assets, err := s.db.MediaAsset.Query().
+		Where(mediaasset.UserIDEQ(userID)).
+		Order(ent.Desc(mediaasset.FieldCaptureTime)).
+		All(ctx)
+
+	if err != nil {
+		http.Error(w, "Failed to fetch gallery", http.StatusInternalServerError)
+		return
+	}
+
+	var response []MediaResponse
+	for _, asset := range assets {
+		// Create a Presigned GET URL so the private file is viewable in the browser
+		presignedReq, err := s.presignClient.PresignGetObject(ctx, &s3.GetObjectInput{
+			Bucket: aws.String(s.bucketName),
+			Key:    aws.String(asset.FileKey),
+		}, s3.WithPresignExpires(1*time.Hour))
+
+		fileURL := ""
+		if err == nil {
+			fileURL = presignedReq.URL
+		}
+
+		response = append(response, MediaResponse{
+			ID:          asset.ID.String(),
+			FileKey:     asset.FileKey,
+			MimeType:    asset.MimeType,
+			CaptureTime: asset.CaptureTime.Format(time.RFC3339),
+			Latitude:    asset.Latitude,
+			Longitude:   asset.Longitude,
+			URL:         fileURL,
+		})
+	}
+
+	if response == nil {
+		response = []MediaResponse{}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
+
+// HandleGetUploadURL generates a Presigned PUT URL for streaming to B2
+func (s *MediaServer) HandleGetUploadURL(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -114,8 +181,8 @@ func (s *UploadServer) HandleGetUploadURL(w http.ResponseWriter, r *http.Request
 	})
 }
 
-// 2. Commit the metadata to Neon (JSON Handler)
-func (s *UploadServer) HandleCommitMedia(w http.ResponseWriter, r *http.Request) {
+// HandleCommitMedia saves the metadata to Neon via Ent
+func (s *MediaServer) HandleCommitMedia(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -138,7 +205,6 @@ func (s *UploadServer) HandleCommitMedia(w http.ResponseWriter, r *http.Request)
 		captureTime = time.Now()
 	}
 
-	// Use Ent to save to Neon
 	asset, err := s.db.MediaAsset.Create().
 		SetUserID(userID).
 		SetFileKey(req.FileKey).
