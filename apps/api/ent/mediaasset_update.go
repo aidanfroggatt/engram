@@ -28,30 +28,16 @@ func (_u *MediaAssetUpdate) Where(ps ...predicate.MediaAsset) *MediaAssetUpdate 
 	return _u
 }
 
-// SetB2URL sets the "b2_url" field.
-func (_u *MediaAssetUpdate) SetB2URL(v string) *MediaAssetUpdate {
-	_u.mutation.SetB2URL(v)
+// SetFileKey sets the "file_key" field.
+func (_u *MediaAssetUpdate) SetFileKey(v string) *MediaAssetUpdate {
+	_u.mutation.SetFileKey(v)
 	return _u
 }
 
-// SetNillableB2URL sets the "b2_url" field if the given value is not nil.
-func (_u *MediaAssetUpdate) SetNillableB2URL(v *string) *MediaAssetUpdate {
+// SetNillableFileKey sets the "file_key" field if the given value is not nil.
+func (_u *MediaAssetUpdate) SetNillableFileKey(v *string) *MediaAssetUpdate {
 	if v != nil {
-		_u.SetB2URL(*v)
-	}
-	return _u
-}
-
-// SetCaptureTime sets the "capture_time" field.
-func (_u *MediaAssetUpdate) SetCaptureTime(v time.Time) *MediaAssetUpdate {
-	_u.mutation.SetCaptureTime(v)
-	return _u
-}
-
-// SetNillableCaptureTime sets the "capture_time" field if the given value is not nil.
-func (_u *MediaAssetUpdate) SetNillableCaptureTime(v *time.Time) *MediaAssetUpdate {
-	if v != nil {
-		_u.SetCaptureTime(*v)
+		_u.SetFileKey(*v)
 	}
 	return _u
 }
@@ -70,23 +56,71 @@ func (_u *MediaAssetUpdate) SetNillableMimeType(v *string) *MediaAssetUpdate {
 	return _u
 }
 
-// SetGeom sets the "geom" field.
-func (_u *MediaAssetUpdate) SetGeom(v string) *MediaAssetUpdate {
-	_u.mutation.SetGeom(v)
+// SetCaptureTime sets the "capture_time" field.
+func (_u *MediaAssetUpdate) SetCaptureTime(v time.Time) *MediaAssetUpdate {
+	_u.mutation.SetCaptureTime(v)
 	return _u
 }
 
-// SetNillableGeom sets the "geom" field if the given value is not nil.
-func (_u *MediaAssetUpdate) SetNillableGeom(v *string) *MediaAssetUpdate {
+// SetNillableCaptureTime sets the "capture_time" field if the given value is not nil.
+func (_u *MediaAssetUpdate) SetNillableCaptureTime(v *time.Time) *MediaAssetUpdate {
 	if v != nil {
-		_u.SetGeom(*v)
+		_u.SetCaptureTime(*v)
 	}
 	return _u
 }
 
-// ClearGeom clears the value of the "geom" field.
-func (_u *MediaAssetUpdate) ClearGeom() *MediaAssetUpdate {
-	_u.mutation.ClearGeom()
+// SetLatitude sets the "latitude" field.
+func (_u *MediaAssetUpdate) SetLatitude(v float64) *MediaAssetUpdate {
+	_u.mutation.ResetLatitude()
+	_u.mutation.SetLatitude(v)
+	return _u
+}
+
+// SetNillableLatitude sets the "latitude" field if the given value is not nil.
+func (_u *MediaAssetUpdate) SetNillableLatitude(v *float64) *MediaAssetUpdate {
+	if v != nil {
+		_u.SetLatitude(*v)
+	}
+	return _u
+}
+
+// AddLatitude adds value to the "latitude" field.
+func (_u *MediaAssetUpdate) AddLatitude(v float64) *MediaAssetUpdate {
+	_u.mutation.AddLatitude(v)
+	return _u
+}
+
+// ClearLatitude clears the value of the "latitude" field.
+func (_u *MediaAssetUpdate) ClearLatitude() *MediaAssetUpdate {
+	_u.mutation.ClearLatitude()
+	return _u
+}
+
+// SetLongitude sets the "longitude" field.
+func (_u *MediaAssetUpdate) SetLongitude(v float64) *MediaAssetUpdate {
+	_u.mutation.ResetLongitude()
+	_u.mutation.SetLongitude(v)
+	return _u
+}
+
+// SetNillableLongitude sets the "longitude" field if the given value is not nil.
+func (_u *MediaAssetUpdate) SetNillableLongitude(v *float64) *MediaAssetUpdate {
+	if v != nil {
+		_u.SetLongitude(*v)
+	}
+	return _u
+}
+
+// AddLongitude adds value to the "longitude" field.
+func (_u *MediaAssetUpdate) AddLongitude(v float64) *MediaAssetUpdate {
+	_u.mutation.AddLongitude(v)
+	return _u
+}
+
+// ClearLongitude clears the value of the "longitude" field.
+func (_u *MediaAssetUpdate) ClearLongitude() *MediaAssetUpdate {
+	_u.mutation.ClearLongitude()
 	return _u
 }
 
@@ -124,9 +158,9 @@ func (_u *MediaAssetUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *MediaAssetUpdate) check() error {
-	if v, ok := _u.mutation.B2URL(); ok {
-		if err := mediaasset.B2URLValidator(v); err != nil {
-			return &ValidationError{Name: "b2_url", err: fmt.Errorf(`ent: validator failed for field "MediaAsset.b2_url": %w`, err)}
+	if v, ok := _u.mutation.FileKey(); ok {
+		if err := mediaasset.FileKeyValidator(v); err != nil {
+			return &ValidationError{Name: "file_key", err: fmt.Errorf(`ent: validator failed for field "MediaAsset.file_key": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.MimeType(); ok {
@@ -149,20 +183,32 @@ func (_u *MediaAssetUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 			}
 		}
 	}
-	if value, ok := _u.mutation.B2URL(); ok {
-		_spec.SetField(mediaasset.FieldB2URL, field.TypeString, value)
-	}
-	if value, ok := _u.mutation.CaptureTime(); ok {
-		_spec.SetField(mediaasset.FieldCaptureTime, field.TypeTime, value)
+	if value, ok := _u.mutation.FileKey(); ok {
+		_spec.SetField(mediaasset.FieldFileKey, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.MimeType(); ok {
 		_spec.SetField(mediaasset.FieldMimeType, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.Geom(); ok {
-		_spec.SetField(mediaasset.FieldGeom, field.TypeString, value)
+	if value, ok := _u.mutation.CaptureTime(); ok {
+		_spec.SetField(mediaasset.FieldCaptureTime, field.TypeTime, value)
 	}
-	if _u.mutation.GeomCleared() {
-		_spec.ClearField(mediaasset.FieldGeom, field.TypeString)
+	if value, ok := _u.mutation.Latitude(); ok {
+		_spec.SetField(mediaasset.FieldLatitude, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedLatitude(); ok {
+		_spec.AddField(mediaasset.FieldLatitude, field.TypeFloat64, value)
+	}
+	if _u.mutation.LatitudeCleared() {
+		_spec.ClearField(mediaasset.FieldLatitude, field.TypeFloat64)
+	}
+	if value, ok := _u.mutation.Longitude(); ok {
+		_spec.SetField(mediaasset.FieldLongitude, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedLongitude(); ok {
+		_spec.AddField(mediaasset.FieldLongitude, field.TypeFloat64, value)
+	}
+	if _u.mutation.LongitudeCleared() {
+		_spec.ClearField(mediaasset.FieldLongitude, field.TypeFloat64)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -184,30 +230,16 @@ type MediaAssetUpdateOne struct {
 	mutation *MediaAssetMutation
 }
 
-// SetB2URL sets the "b2_url" field.
-func (_u *MediaAssetUpdateOne) SetB2URL(v string) *MediaAssetUpdateOne {
-	_u.mutation.SetB2URL(v)
+// SetFileKey sets the "file_key" field.
+func (_u *MediaAssetUpdateOne) SetFileKey(v string) *MediaAssetUpdateOne {
+	_u.mutation.SetFileKey(v)
 	return _u
 }
 
-// SetNillableB2URL sets the "b2_url" field if the given value is not nil.
-func (_u *MediaAssetUpdateOne) SetNillableB2URL(v *string) *MediaAssetUpdateOne {
+// SetNillableFileKey sets the "file_key" field if the given value is not nil.
+func (_u *MediaAssetUpdateOne) SetNillableFileKey(v *string) *MediaAssetUpdateOne {
 	if v != nil {
-		_u.SetB2URL(*v)
-	}
-	return _u
-}
-
-// SetCaptureTime sets the "capture_time" field.
-func (_u *MediaAssetUpdateOne) SetCaptureTime(v time.Time) *MediaAssetUpdateOne {
-	_u.mutation.SetCaptureTime(v)
-	return _u
-}
-
-// SetNillableCaptureTime sets the "capture_time" field if the given value is not nil.
-func (_u *MediaAssetUpdateOne) SetNillableCaptureTime(v *time.Time) *MediaAssetUpdateOne {
-	if v != nil {
-		_u.SetCaptureTime(*v)
+		_u.SetFileKey(*v)
 	}
 	return _u
 }
@@ -226,23 +258,71 @@ func (_u *MediaAssetUpdateOne) SetNillableMimeType(v *string) *MediaAssetUpdateO
 	return _u
 }
 
-// SetGeom sets the "geom" field.
-func (_u *MediaAssetUpdateOne) SetGeom(v string) *MediaAssetUpdateOne {
-	_u.mutation.SetGeom(v)
+// SetCaptureTime sets the "capture_time" field.
+func (_u *MediaAssetUpdateOne) SetCaptureTime(v time.Time) *MediaAssetUpdateOne {
+	_u.mutation.SetCaptureTime(v)
 	return _u
 }
 
-// SetNillableGeom sets the "geom" field if the given value is not nil.
-func (_u *MediaAssetUpdateOne) SetNillableGeom(v *string) *MediaAssetUpdateOne {
+// SetNillableCaptureTime sets the "capture_time" field if the given value is not nil.
+func (_u *MediaAssetUpdateOne) SetNillableCaptureTime(v *time.Time) *MediaAssetUpdateOne {
 	if v != nil {
-		_u.SetGeom(*v)
+		_u.SetCaptureTime(*v)
 	}
 	return _u
 }
 
-// ClearGeom clears the value of the "geom" field.
-func (_u *MediaAssetUpdateOne) ClearGeom() *MediaAssetUpdateOne {
-	_u.mutation.ClearGeom()
+// SetLatitude sets the "latitude" field.
+func (_u *MediaAssetUpdateOne) SetLatitude(v float64) *MediaAssetUpdateOne {
+	_u.mutation.ResetLatitude()
+	_u.mutation.SetLatitude(v)
+	return _u
+}
+
+// SetNillableLatitude sets the "latitude" field if the given value is not nil.
+func (_u *MediaAssetUpdateOne) SetNillableLatitude(v *float64) *MediaAssetUpdateOne {
+	if v != nil {
+		_u.SetLatitude(*v)
+	}
+	return _u
+}
+
+// AddLatitude adds value to the "latitude" field.
+func (_u *MediaAssetUpdateOne) AddLatitude(v float64) *MediaAssetUpdateOne {
+	_u.mutation.AddLatitude(v)
+	return _u
+}
+
+// ClearLatitude clears the value of the "latitude" field.
+func (_u *MediaAssetUpdateOne) ClearLatitude() *MediaAssetUpdateOne {
+	_u.mutation.ClearLatitude()
+	return _u
+}
+
+// SetLongitude sets the "longitude" field.
+func (_u *MediaAssetUpdateOne) SetLongitude(v float64) *MediaAssetUpdateOne {
+	_u.mutation.ResetLongitude()
+	_u.mutation.SetLongitude(v)
+	return _u
+}
+
+// SetNillableLongitude sets the "longitude" field if the given value is not nil.
+func (_u *MediaAssetUpdateOne) SetNillableLongitude(v *float64) *MediaAssetUpdateOne {
+	if v != nil {
+		_u.SetLongitude(*v)
+	}
+	return _u
+}
+
+// AddLongitude adds value to the "longitude" field.
+func (_u *MediaAssetUpdateOne) AddLongitude(v float64) *MediaAssetUpdateOne {
+	_u.mutation.AddLongitude(v)
+	return _u
+}
+
+// ClearLongitude clears the value of the "longitude" field.
+func (_u *MediaAssetUpdateOne) ClearLongitude() *MediaAssetUpdateOne {
+	_u.mutation.ClearLongitude()
 	return _u
 }
 
@@ -293,9 +373,9 @@ func (_u *MediaAssetUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *MediaAssetUpdateOne) check() error {
-	if v, ok := _u.mutation.B2URL(); ok {
-		if err := mediaasset.B2URLValidator(v); err != nil {
-			return &ValidationError{Name: "b2_url", err: fmt.Errorf(`ent: validator failed for field "MediaAsset.b2_url": %w`, err)}
+	if v, ok := _u.mutation.FileKey(); ok {
+		if err := mediaasset.FileKeyValidator(v); err != nil {
+			return &ValidationError{Name: "file_key", err: fmt.Errorf(`ent: validator failed for field "MediaAsset.file_key": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.MimeType(); ok {
@@ -335,20 +415,32 @@ func (_u *MediaAssetUpdateOne) sqlSave(ctx context.Context) (_node *MediaAsset, 
 			}
 		}
 	}
-	if value, ok := _u.mutation.B2URL(); ok {
-		_spec.SetField(mediaasset.FieldB2URL, field.TypeString, value)
-	}
-	if value, ok := _u.mutation.CaptureTime(); ok {
-		_spec.SetField(mediaasset.FieldCaptureTime, field.TypeTime, value)
+	if value, ok := _u.mutation.FileKey(); ok {
+		_spec.SetField(mediaasset.FieldFileKey, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.MimeType(); ok {
 		_spec.SetField(mediaasset.FieldMimeType, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.Geom(); ok {
-		_spec.SetField(mediaasset.FieldGeom, field.TypeString, value)
+	if value, ok := _u.mutation.CaptureTime(); ok {
+		_spec.SetField(mediaasset.FieldCaptureTime, field.TypeTime, value)
 	}
-	if _u.mutation.GeomCleared() {
-		_spec.ClearField(mediaasset.FieldGeom, field.TypeString)
+	if value, ok := _u.mutation.Latitude(); ok {
+		_spec.SetField(mediaasset.FieldLatitude, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedLatitude(); ok {
+		_spec.AddField(mediaasset.FieldLatitude, field.TypeFloat64, value)
+	}
+	if _u.mutation.LatitudeCleared() {
+		_spec.ClearField(mediaasset.FieldLatitude, field.TypeFloat64)
+	}
+	if value, ok := _u.mutation.Longitude(); ok {
+		_spec.SetField(mediaasset.FieldLongitude, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedLongitude(); ok {
+		_spec.AddField(mediaasset.FieldLongitude, field.TypeFloat64, value)
+	}
+	if _u.mutation.LongitudeCleared() {
+		_spec.ClearField(mediaasset.FieldLongitude, field.TypeFloat64)
 	}
 	_node = &MediaAsset{config: _u.config}
 	_spec.Assign = _node.assignValues

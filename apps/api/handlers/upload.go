@@ -2,11 +2,12 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
-	"connectrpc.com/connect"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
@@ -14,83 +15,147 @@ import (
 	"github.com/google/uuid"
 
 	"engram/api/config"
+	"engram/api/ent"
 	"engram/api/middleware"
-	"engram/api/rpc/upload"
 )
+
+// Request/Response Structs for JSON
+type GetUploadURLRequest struct {
+	Filename string `json:"filename"`
+	MimeType string `json:"mimeType"`
+}
+
+type GetUploadURLResponse struct {
+	UploadURL string `json:"uploadUrl"`
+	FileKey   string `json:"fileKey"`
+}
+
+type CommitMediaRequest struct {
+	FileKey     string   `json:"fileKey"`
+	MimeType    string   `json:"mimeType"`
+	CaptureTime string   `json:"captureTime"`
+	Latitude    *float64 `json:"latitude"`
+	Longitude   *float64 `json:"longitude"`
+}
 
 type UploadServer struct {
 	presignClient *s3.PresignClient
 	bucketName    string
+	db            *ent.Client
 }
 
-func NewUploadServer(cfg *config.Config) (*UploadServer, error) {
-	// 1. Extract the region from your B2 endpoint (e.g., https://s3.us-east-005.backblazeb2.com)
-	// You can also just hardcode this to your specific B2 region string (like "us-east-005")
-	region := "us-east-1" // Default fallback
+func NewUploadServer(cfg *config.Config, db *ent.Client) (*UploadServer, error) {
+	region := "us-east-1"
 	parts := strings.Split(cfg.B2Endpoint, ".")
-	if len(parts) > 1 && strings.HasPrefix(parts[1], "us-") || strings.HasPrefix(parts[1], "eu-") {
+	if len(parts) > 1 && (strings.HasPrefix(parts[1], "us-") || strings.HasPrefix(parts[1], "eu-")) {
 		region = parts[1]
 	}
 
-	customResolver := aws.EndpointResolverWithOptionsFunc(func(service, reg string, options ...interface{}) (aws.Endpoint, error) {
-		return aws.Endpoint{
-			URL:               cfg.B2Endpoint,
-			HostnameImmutable: true,
-			SigningRegion:     region, // Force the signature to match B2
-		}, nil
-	})
-
 	awsCfg, err := awsconfig.LoadDefaultConfig(context.TODO(),
-		awsconfig.WithRegion(region), // Explicitly set region to fix signature mismatches
+		awsconfig.WithRegion(region),
 		awsconfig.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(cfg.B2KeyID, cfg.B2AppKey, "")),
-		awsconfig.WithEndpointResolverWithOptions(customResolver),
 	)
 	if err != nil {
 		return nil, err
 	}
 
 	client := s3.NewFromConfig(awsCfg, func(o *s3.Options) {
+		o.BaseEndpoint = aws.String(cfg.B2Endpoint)
 		o.UsePathStyle = true
 	})
 
 	return &UploadServer{
 		presignClient: s3.NewPresignClient(client),
 		bucketName:    cfg.B2BucketName,
+		db:            db,
 	}, nil
 }
 
-// CHANGED: rpc.GetUploadURLRequest is now upload.GetUploadURLRequest
-func (s *UploadServer) GetUploadURL(
-	ctx context.Context,
-	req *connect.Request[upload.GetUploadURLRequest],
-) (*connect.Response[upload.GetUploadURLResponse], error) {
-	
-	userID, ok := ctx.Value(middleware.UserIDKey).(string)
+// 1. Get the B2 ticket (JSON Handler)
+func (s *UploadServer) HandleGetUploadURL(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req GetUploadURLRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	userID, ok := r.Context().Value(middleware.UserIDKey).(string)
 	if !ok {
-		return nil, connect.NewError(connect.CodeUnauthenticated, fmt.Errorf("missing user identity"))
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
 	}
 
 	ext := "bin"
-	parts := strings.Split(req.Msg.Filename, ".")
-	if len(parts) > 1 {
+	if parts := strings.Split(req.Filename, "."); len(parts) > 1 {
 		ext = parts[len(parts)-1]
 	}
 	fileKey := fmt.Sprintf("%s/%s.%s", userID, uuid.New().String(), ext)
 
-	presignedReq, err := s.presignClient.PresignPutObject(ctx, &s3.PutObjectInput{
+	presignedReq, err := s.presignClient.PresignPutObject(r.Context(), &s3.PutObjectInput{
 		Bucket:      aws.String(s.bucketName),
 		Key:         aws.String(fileKey),
-		ContentType: aws.String(req.Msg.MimeType),
+		ContentType: aws.String(req.MimeType),
 	}, s3.WithPresignExpires(15*time.Minute))
 
 	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("failed to generate upload url: %v", err))
+		http.Error(w, "B2 presign error", http.StatusInternalServerError)
+		return
 	}
 
-	res := connect.NewResponse(&upload.GetUploadURLResponse{
-		UploadUrl: presignedReq.URL,
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(GetUploadURLResponse{
+		UploadURL: presignedReq.URL,
 		FileKey:   fileKey,
 	})
+}
 
-	return res, nil
+// 2. Commit the metadata to Neon (JSON Handler)
+func (s *UploadServer) HandleCommitMedia(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req CommitMediaRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	userID, ok := r.Context().Value(middleware.UserIDKey).(string)
+	if !ok {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	captureTime, err := time.Parse(time.RFC3339, req.CaptureTime)
+	if err != nil {
+		captureTime = time.Now()
+	}
+
+	// Use Ent to save to Neon
+	asset, err := s.db.MediaAsset.Create().
+		SetUserID(userID).
+		SetFileKey(req.FileKey).
+		SetMimeType(req.MimeType).
+		SetCaptureTime(captureTime).
+		SetNillableLatitude(req.Latitude).
+		SetNillableLongitude(req.Longitude).
+		Save(r.Context())
+
+	if err != nil {
+		http.Error(w, fmt.Sprintf("DB save failed: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"id":      asset.ID.String(),
+		"success": true,
+	})
 }

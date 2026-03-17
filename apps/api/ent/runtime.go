@@ -21,16 +21,16 @@ func init() {
 	mediaassetDescUserID := mediaassetFields[1].Descriptor()
 	// mediaasset.UserIDValidator is a validator for the "user_id" field. It is called by the builders before save.
 	mediaasset.UserIDValidator = mediaassetDescUserID.Validators[0].(func(string) error)
-	// mediaassetDescB2URL is the schema descriptor for b2_url field.
-	mediaassetDescB2URL := mediaassetFields[2].Descriptor()
-	// mediaasset.B2URLValidator is a validator for the "b2_url" field. It is called by the builders before save.
-	mediaasset.B2URLValidator = mediaassetDescB2URL.Validators[0].(func(string) error)
+	// mediaassetDescFileKey is the schema descriptor for file_key field.
+	mediaassetDescFileKey := mediaassetFields[2].Descriptor()
+	// mediaasset.FileKeyValidator is a validator for the "file_key" field. It is called by the builders before save.
+	mediaasset.FileKeyValidator = mediaassetDescFileKey.Validators[0].(func(string) error)
 	// mediaassetDescMimeType is the schema descriptor for mime_type field.
-	mediaassetDescMimeType := mediaassetFields[4].Descriptor()
+	mediaassetDescMimeType := mediaassetFields[3].Descriptor()
 	// mediaasset.MimeTypeValidator is a validator for the "mime_type" field. It is called by the builders before save.
 	mediaasset.MimeTypeValidator = mediaassetDescMimeType.Validators[0].(func(string) error)
 	// mediaassetDescCreatedAt is the schema descriptor for created_at field.
-	mediaassetDescCreatedAt := mediaassetFields[6].Descriptor()
+	mediaassetDescCreatedAt := mediaassetFields[7].Descriptor()
 	// mediaasset.DefaultCreatedAt holds the default value on creation for the created_at field.
 	mediaasset.DefaultCreatedAt = mediaassetDescCreatedAt.Default.(func() time.Time)
 	// mediaassetDescID is the schema descriptor for id field.

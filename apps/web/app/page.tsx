@@ -13,6 +13,7 @@ type FileState = ParsedMediaMetadata & {
   fileKey?: string;
 };
 
+// These must match the JSON tags in your Go handlers
 interface GoTicketResponse {
   uploadUrl: string;
   fileKey: string;
@@ -45,7 +46,7 @@ export default function Home() {
     }
   };
 
-  // --- EXIF Test ---
+  // --- EXIF Selection ---
   const handleFileSelect = async (
     e: React.ChangeEvent<HTMLInputElement>,
   ): Promise<void> => {
@@ -68,14 +69,10 @@ export default function Home() {
     }
   };
 
-  // --- Upload Pipeline ---
+  // --- The New JSON Upload Pipeline ---
   const handleUpload = async (index: number): Promise<void> => {
-    // Strict boundary check to satisfy TypeScript
     const target = parsedFiles[index];
-    if (!target) {
-      console.error(`No file found at index ${index}`);
-      return;
-    }
+    if (!target) return;
 
     const updateStatus = (status: FileUploadStatus, key?: string): void => {
       setParsedFiles((prev) => {
@@ -94,27 +91,23 @@ export default function Home() {
       const token = await getToken();
       if (!token) throw new Error("Authentication token missing.");
 
-      // A. Get Ticket from Go
-      const ticketRes = await fetch(
-        "http://localhost:8080/engram.upload.v1.UploadService/GetUploadURL",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            filename: target.fileName,
-            mimeType: target.mimeType,
-          }),
+      // A. Get Ticket (New JSON Endpoint)
+      const ticketRes = await fetch("http://localhost:8080/api/upload/url", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-      );
+        body: JSON.stringify({
+          filename: target.fileName,
+          mimeType: target.mimeType,
+        }),
+      });
 
       if (!ticketRes.ok) {
         throw new Error(`Failed to get B2 ticket. Status: ${ticketRes.status}`);
       }
 
-      // Cast the response strictly
       const ticket = (await ticketRes.json()) as GoTicketResponse;
 
       // B. Stream to B2
@@ -125,13 +118,32 @@ export default function Home() {
       });
 
       if (!b2Res.ok) {
-        const errText = await b2Res.text();
-        throw new Error(`B2 Storage Error (${b2Res.status}): ${errText}`);
+        throw new Error(`B2 Storage Error (${b2Res.status})`);
+      }
+
+      // C. Commit to Neon (New JSON Endpoint)
+      const commitRes = await fetch("http://localhost:8080/api/upload/commit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          fileKey: ticket.fileKey,
+          mimeType: target.mimeType,
+          captureTime: target.captureTime.toISOString(),
+          latitude: target.latitude,
+          longitude: target.longitude,
+        }),
+      });
+
+      if (!commitRes.ok) {
+        throw new Error(`Database commit failed. Status: ${commitRes.status}`);
       }
 
       updateStatus("success", ticket.fileKey);
     } catch (error) {
-      console.error("Upload pipeline failed:", error);
+      console.error("Upload failed:", error);
       updateStatus("error");
     }
   };
@@ -147,7 +159,6 @@ export default function Home() {
       </h1>
 
       <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Test 1: Go Backend Auth */}
         <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
           <h2 className="text-lg font-bold mb-4 text-zinc-300">
             1. Auth Connection
@@ -165,7 +176,6 @@ export default function Home() {
           )}
         </div>
 
-        {/* Test 2: Local Metadata Extraction */}
         <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
           <h2 className="text-lg font-bold mb-4 text-zinc-300">
             2. EXIF Extraction
@@ -186,7 +196,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Test 3: The Upload Pipeline */}
       {parsedFiles.length > 0 && (
         <div className="w-full max-w-4xl mt-12">
           <h3 className="text-xs font-black mb-4 text-zinc-600 uppercase tracking-widest border-b border-zinc-800 pb-2">

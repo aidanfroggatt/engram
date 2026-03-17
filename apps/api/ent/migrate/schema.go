@@ -12,10 +12,11 @@ var (
 	MediaAssetsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
 		{Name: "user_id", Type: field.TypeString},
-		{Name: "b2_url", Type: field.TypeString},
-		{Name: "capture_time", Type: field.TypeTime},
+		{Name: "file_key", Type: field.TypeString, Unique: true},
 		{Name: "mime_type", Type: field.TypeString},
-		{Name: "geom", Type: field.TypeString, Nullable: true},
+		{Name: "capture_time", Type: field.TypeTime},
+		{Name: "latitude", Type: field.TypeFloat64, Nullable: true},
+		{Name: "longitude", Type: field.TypeFloat64, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime},
 	}
 	// MediaAssetsTable holds the schema information for the "media_assets" table.
@@ -27,7 +28,7 @@ var (
 			{
 				Name:    "mediaasset_user_id_capture_time",
 				Unique:  false,
-				Columns: []*schema.Column{MediaAssetsColumns[1], MediaAssetsColumns[3]},
+				Columns: []*schema.Column{MediaAssetsColumns[1], MediaAssetsColumns[4]},
 			},
 		},
 	}

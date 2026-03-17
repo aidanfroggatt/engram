@@ -60,14 +60,9 @@ func UserID(v string) predicate.MediaAsset {
 	return predicate.MediaAsset(sql.FieldEQ(FieldUserID, v))
 }
 
-// B2URL applies equality check predicate on the "b2_url" field. It's identical to B2URLEQ.
-func B2URL(v string) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldEQ(FieldB2URL, v))
-}
-
-// CaptureTime applies equality check predicate on the "capture_time" field. It's identical to CaptureTimeEQ.
-func CaptureTime(v time.Time) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldEQ(FieldCaptureTime, v))
+// FileKey applies equality check predicate on the "file_key" field. It's identical to FileKeyEQ.
+func FileKey(v string) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldEQ(FieldFileKey, v))
 }
 
 // MimeType applies equality check predicate on the "mime_type" field. It's identical to MimeTypeEQ.
@@ -75,9 +70,19 @@ func MimeType(v string) predicate.MediaAsset {
 	return predicate.MediaAsset(sql.FieldEQ(FieldMimeType, v))
 }
 
-// Geom applies equality check predicate on the "geom" field. It's identical to GeomEQ.
-func Geom(v string) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldEQ(FieldGeom, v))
+// CaptureTime applies equality check predicate on the "capture_time" field. It's identical to CaptureTimeEQ.
+func CaptureTime(v time.Time) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldEQ(FieldCaptureTime, v))
+}
+
+// Latitude applies equality check predicate on the "latitude" field. It's identical to LatitudeEQ.
+func Latitude(v float64) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldEQ(FieldLatitude, v))
+}
+
+// Longitude applies equality check predicate on the "longitude" field. It's identical to LongitudeEQ.
+func Longitude(v float64) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldEQ(FieldLongitude, v))
 }
 
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
@@ -150,109 +155,69 @@ func UserIDContainsFold(v string) predicate.MediaAsset {
 	return predicate.MediaAsset(sql.FieldContainsFold(FieldUserID, v))
 }
 
-// B2URLEQ applies the EQ predicate on the "b2_url" field.
-func B2URLEQ(v string) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldEQ(FieldB2URL, v))
+// FileKeyEQ applies the EQ predicate on the "file_key" field.
+func FileKeyEQ(v string) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldEQ(FieldFileKey, v))
 }
 
-// B2URLNEQ applies the NEQ predicate on the "b2_url" field.
-func B2URLNEQ(v string) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldNEQ(FieldB2URL, v))
+// FileKeyNEQ applies the NEQ predicate on the "file_key" field.
+func FileKeyNEQ(v string) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldNEQ(FieldFileKey, v))
 }
 
-// B2URLIn applies the In predicate on the "b2_url" field.
-func B2URLIn(vs ...string) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldIn(FieldB2URL, vs...))
+// FileKeyIn applies the In predicate on the "file_key" field.
+func FileKeyIn(vs ...string) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldIn(FieldFileKey, vs...))
 }
 
-// B2URLNotIn applies the NotIn predicate on the "b2_url" field.
-func B2URLNotIn(vs ...string) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldNotIn(FieldB2URL, vs...))
+// FileKeyNotIn applies the NotIn predicate on the "file_key" field.
+func FileKeyNotIn(vs ...string) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldNotIn(FieldFileKey, vs...))
 }
 
-// B2URLGT applies the GT predicate on the "b2_url" field.
-func B2URLGT(v string) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldGT(FieldB2URL, v))
+// FileKeyGT applies the GT predicate on the "file_key" field.
+func FileKeyGT(v string) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldGT(FieldFileKey, v))
 }
 
-// B2URLGTE applies the GTE predicate on the "b2_url" field.
-func B2URLGTE(v string) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldGTE(FieldB2URL, v))
+// FileKeyGTE applies the GTE predicate on the "file_key" field.
+func FileKeyGTE(v string) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldGTE(FieldFileKey, v))
 }
 
-// B2URLLT applies the LT predicate on the "b2_url" field.
-func B2URLLT(v string) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldLT(FieldB2URL, v))
+// FileKeyLT applies the LT predicate on the "file_key" field.
+func FileKeyLT(v string) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldLT(FieldFileKey, v))
 }
 
-// B2URLLTE applies the LTE predicate on the "b2_url" field.
-func B2URLLTE(v string) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldLTE(FieldB2URL, v))
+// FileKeyLTE applies the LTE predicate on the "file_key" field.
+func FileKeyLTE(v string) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldLTE(FieldFileKey, v))
 }
 
-// B2URLContains applies the Contains predicate on the "b2_url" field.
-func B2URLContains(v string) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldContains(FieldB2URL, v))
+// FileKeyContains applies the Contains predicate on the "file_key" field.
+func FileKeyContains(v string) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldContains(FieldFileKey, v))
 }
 
-// B2URLHasPrefix applies the HasPrefix predicate on the "b2_url" field.
-func B2URLHasPrefix(v string) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldHasPrefix(FieldB2URL, v))
+// FileKeyHasPrefix applies the HasPrefix predicate on the "file_key" field.
+func FileKeyHasPrefix(v string) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldHasPrefix(FieldFileKey, v))
 }
 
-// B2URLHasSuffix applies the HasSuffix predicate on the "b2_url" field.
-func B2URLHasSuffix(v string) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldHasSuffix(FieldB2URL, v))
+// FileKeyHasSuffix applies the HasSuffix predicate on the "file_key" field.
+func FileKeyHasSuffix(v string) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldHasSuffix(FieldFileKey, v))
 }
 
-// B2URLEqualFold applies the EqualFold predicate on the "b2_url" field.
-func B2URLEqualFold(v string) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldEqualFold(FieldB2URL, v))
+// FileKeyEqualFold applies the EqualFold predicate on the "file_key" field.
+func FileKeyEqualFold(v string) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldEqualFold(FieldFileKey, v))
 }
 
-// B2URLContainsFold applies the ContainsFold predicate on the "b2_url" field.
-func B2URLContainsFold(v string) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldContainsFold(FieldB2URL, v))
-}
-
-// CaptureTimeEQ applies the EQ predicate on the "capture_time" field.
-func CaptureTimeEQ(v time.Time) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldEQ(FieldCaptureTime, v))
-}
-
-// CaptureTimeNEQ applies the NEQ predicate on the "capture_time" field.
-func CaptureTimeNEQ(v time.Time) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldNEQ(FieldCaptureTime, v))
-}
-
-// CaptureTimeIn applies the In predicate on the "capture_time" field.
-func CaptureTimeIn(vs ...time.Time) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldIn(FieldCaptureTime, vs...))
-}
-
-// CaptureTimeNotIn applies the NotIn predicate on the "capture_time" field.
-func CaptureTimeNotIn(vs ...time.Time) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldNotIn(FieldCaptureTime, vs...))
-}
-
-// CaptureTimeGT applies the GT predicate on the "capture_time" field.
-func CaptureTimeGT(v time.Time) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldGT(FieldCaptureTime, v))
-}
-
-// CaptureTimeGTE applies the GTE predicate on the "capture_time" field.
-func CaptureTimeGTE(v time.Time) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldGTE(FieldCaptureTime, v))
-}
-
-// CaptureTimeLT applies the LT predicate on the "capture_time" field.
-func CaptureTimeLT(v time.Time) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldLT(FieldCaptureTime, v))
-}
-
-// CaptureTimeLTE applies the LTE predicate on the "capture_time" field.
-func CaptureTimeLTE(v time.Time) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldLTE(FieldCaptureTime, v))
+// FileKeyContainsFold applies the ContainsFold predicate on the "file_key" field.
+func FileKeyContainsFold(v string) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldContainsFold(FieldFileKey, v))
 }
 
 // MimeTypeEQ applies the EQ predicate on the "mime_type" field.
@@ -320,79 +285,144 @@ func MimeTypeContainsFold(v string) predicate.MediaAsset {
 	return predicate.MediaAsset(sql.FieldContainsFold(FieldMimeType, v))
 }
 
-// GeomEQ applies the EQ predicate on the "geom" field.
-func GeomEQ(v string) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldEQ(FieldGeom, v))
+// CaptureTimeEQ applies the EQ predicate on the "capture_time" field.
+func CaptureTimeEQ(v time.Time) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldEQ(FieldCaptureTime, v))
 }
 
-// GeomNEQ applies the NEQ predicate on the "geom" field.
-func GeomNEQ(v string) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldNEQ(FieldGeom, v))
+// CaptureTimeNEQ applies the NEQ predicate on the "capture_time" field.
+func CaptureTimeNEQ(v time.Time) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldNEQ(FieldCaptureTime, v))
 }
 
-// GeomIn applies the In predicate on the "geom" field.
-func GeomIn(vs ...string) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldIn(FieldGeom, vs...))
+// CaptureTimeIn applies the In predicate on the "capture_time" field.
+func CaptureTimeIn(vs ...time.Time) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldIn(FieldCaptureTime, vs...))
 }
 
-// GeomNotIn applies the NotIn predicate on the "geom" field.
-func GeomNotIn(vs ...string) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldNotIn(FieldGeom, vs...))
+// CaptureTimeNotIn applies the NotIn predicate on the "capture_time" field.
+func CaptureTimeNotIn(vs ...time.Time) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldNotIn(FieldCaptureTime, vs...))
 }
 
-// GeomGT applies the GT predicate on the "geom" field.
-func GeomGT(v string) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldGT(FieldGeom, v))
+// CaptureTimeGT applies the GT predicate on the "capture_time" field.
+func CaptureTimeGT(v time.Time) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldGT(FieldCaptureTime, v))
 }
 
-// GeomGTE applies the GTE predicate on the "geom" field.
-func GeomGTE(v string) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldGTE(FieldGeom, v))
+// CaptureTimeGTE applies the GTE predicate on the "capture_time" field.
+func CaptureTimeGTE(v time.Time) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldGTE(FieldCaptureTime, v))
 }
 
-// GeomLT applies the LT predicate on the "geom" field.
-func GeomLT(v string) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldLT(FieldGeom, v))
+// CaptureTimeLT applies the LT predicate on the "capture_time" field.
+func CaptureTimeLT(v time.Time) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldLT(FieldCaptureTime, v))
 }
 
-// GeomLTE applies the LTE predicate on the "geom" field.
-func GeomLTE(v string) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldLTE(FieldGeom, v))
+// CaptureTimeLTE applies the LTE predicate on the "capture_time" field.
+func CaptureTimeLTE(v time.Time) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldLTE(FieldCaptureTime, v))
 }
 
-// GeomContains applies the Contains predicate on the "geom" field.
-func GeomContains(v string) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldContains(FieldGeom, v))
+// LatitudeEQ applies the EQ predicate on the "latitude" field.
+func LatitudeEQ(v float64) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldEQ(FieldLatitude, v))
 }
 
-// GeomHasPrefix applies the HasPrefix predicate on the "geom" field.
-func GeomHasPrefix(v string) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldHasPrefix(FieldGeom, v))
+// LatitudeNEQ applies the NEQ predicate on the "latitude" field.
+func LatitudeNEQ(v float64) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldNEQ(FieldLatitude, v))
 }
 
-// GeomHasSuffix applies the HasSuffix predicate on the "geom" field.
-func GeomHasSuffix(v string) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldHasSuffix(FieldGeom, v))
+// LatitudeIn applies the In predicate on the "latitude" field.
+func LatitudeIn(vs ...float64) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldIn(FieldLatitude, vs...))
 }
 
-// GeomIsNil applies the IsNil predicate on the "geom" field.
-func GeomIsNil() predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldIsNull(FieldGeom))
+// LatitudeNotIn applies the NotIn predicate on the "latitude" field.
+func LatitudeNotIn(vs ...float64) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldNotIn(FieldLatitude, vs...))
 }
 
-// GeomNotNil applies the NotNil predicate on the "geom" field.
-func GeomNotNil() predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldNotNull(FieldGeom))
+// LatitudeGT applies the GT predicate on the "latitude" field.
+func LatitudeGT(v float64) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldGT(FieldLatitude, v))
 }
 
-// GeomEqualFold applies the EqualFold predicate on the "geom" field.
-func GeomEqualFold(v string) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldEqualFold(FieldGeom, v))
+// LatitudeGTE applies the GTE predicate on the "latitude" field.
+func LatitudeGTE(v float64) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldGTE(FieldLatitude, v))
 }
 
-// GeomContainsFold applies the ContainsFold predicate on the "geom" field.
-func GeomContainsFold(v string) predicate.MediaAsset {
-	return predicate.MediaAsset(sql.FieldContainsFold(FieldGeom, v))
+// LatitudeLT applies the LT predicate on the "latitude" field.
+func LatitudeLT(v float64) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldLT(FieldLatitude, v))
+}
+
+// LatitudeLTE applies the LTE predicate on the "latitude" field.
+func LatitudeLTE(v float64) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldLTE(FieldLatitude, v))
+}
+
+// LatitudeIsNil applies the IsNil predicate on the "latitude" field.
+func LatitudeIsNil() predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldIsNull(FieldLatitude))
+}
+
+// LatitudeNotNil applies the NotNil predicate on the "latitude" field.
+func LatitudeNotNil() predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldNotNull(FieldLatitude))
+}
+
+// LongitudeEQ applies the EQ predicate on the "longitude" field.
+func LongitudeEQ(v float64) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldEQ(FieldLongitude, v))
+}
+
+// LongitudeNEQ applies the NEQ predicate on the "longitude" field.
+func LongitudeNEQ(v float64) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldNEQ(FieldLongitude, v))
+}
+
+// LongitudeIn applies the In predicate on the "longitude" field.
+func LongitudeIn(vs ...float64) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldIn(FieldLongitude, vs...))
+}
+
+// LongitudeNotIn applies the NotIn predicate on the "longitude" field.
+func LongitudeNotIn(vs ...float64) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldNotIn(FieldLongitude, vs...))
+}
+
+// LongitudeGT applies the GT predicate on the "longitude" field.
+func LongitudeGT(v float64) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldGT(FieldLongitude, v))
+}
+
+// LongitudeGTE applies the GTE predicate on the "longitude" field.
+func LongitudeGTE(v float64) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldGTE(FieldLongitude, v))
+}
+
+// LongitudeLT applies the LT predicate on the "longitude" field.
+func LongitudeLT(v float64) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldLT(FieldLongitude, v))
+}
+
+// LongitudeLTE applies the LTE predicate on the "longitude" field.
+func LongitudeLTE(v float64) predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldLTE(FieldLongitude, v))
+}
+
+// LongitudeIsNil applies the IsNil predicate on the "longitude" field.
+func LongitudeIsNil() predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldIsNull(FieldLongitude))
+}
+
+// LongitudeNotNil applies the NotNil predicate on the "longitude" field.
+func LongitudeNotNil() predicate.MediaAsset {
+	return predicate.MediaAsset(sql.FieldNotNull(FieldLongitude))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
