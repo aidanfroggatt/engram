@@ -38,17 +38,17 @@ func main() {
 	}
 	defer client.Close()
 
-	// 2. Run Auto-Migration (Syncs your schema to Neon)
+	// 2. Run Auto-Migration
 	if err := client.Schema.Create(context.Background()); err != nil {
 		log.Fatalf("Failed to sync schema: %v", err)
 	}
 	fmt.Println("Database schema synced to Neon.")
 
-	// 3. Initialize Handlers
+	// 3. Initialize Unified Media Server (Handles Uploads & Gallery)
 	auth := middleware.NewAuthMiddleware(cfg.JWKSURL)
-	uploadServer, err := handlers.NewUploadServer(cfg, client)
+	mediaServer, err := handlers.NewMediaServer(cfg, client)
 	if err != nil {
-		log.Fatalf("Failed to initialize upload server: %v", err)
+		log.Fatalf("Failed to initialize media server: %v", err)
 	}
 
 	// 4. Set up Routes
@@ -60,9 +60,12 @@ func main() {
 		fmt.Fprint(w, "OK")
 	})
 
-	// Protected Upload Routes
-	mux.HandleFunc("/api/upload/url", uploadServer.HandleGetUploadURL)
-	mux.HandleFunc("/api/upload/commit", uploadServer.HandleCommitMedia)
+	// Gallery Route
+	mux.HandleFunc("/api/media", mediaServer.HandleListMedia)
+
+	// Upload Routes
+	mux.HandleFunc("/api/upload/url", mediaServer.HandleGetUploadURL)
+	mux.HandleFunc("/api/upload/commit", mediaServer.HandleCommitMedia)
 
 	// Protected Debug Route
 	mux.HandleFunc("/protected", func(w http.ResponseWriter, r *http.Request) {
@@ -71,7 +74,6 @@ func main() {
 	})
 
 	// 5. Wrap with Middleware
-	// Order: CORS -> Auth -> Handlers
 	protectedMux := auth.RequireAuth(mux)
 	finalHandler := corsMiddleware(protectedMux)
 
