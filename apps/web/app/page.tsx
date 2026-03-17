@@ -8,29 +8,76 @@ import {
   startOfWeek,
   startOfYear,
 } from "date-fns";
-import { MapPin, Plus } from "lucide-react";
+import { MapPin, PlayCircle, Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useVaultGallery } from "@/hooks/use-vault-gallery";
 import { MediaAsset } from "@/types/media";
 
 type TimeScale = "day" | "week" | "month" | "year";
 
+// --- Sub-Component: MediaRenderer ---
+function MediaRenderer({
+  asset,
+  isThumbnail = false,
+}: {
+  asset: MediaAsset;
+  isThumbnail?: boolean;
+}) {
+  const isVideo = asset.mimeType.startsWith("video/");
+
+  if (isVideo) {
+    return (
+      <div className="relative w-full h-full bg-black flex items-center justify-center">
+        <video
+          src={`${asset.url}${isThumbnail ? "#t=0.001" : ""}`}
+          className="w-full h-full object-cover"
+          controls={!isThumbnail}
+          autoPlay={!isThumbnail}
+          preload="metadata"
+          playsInline
+        />
+        {isThumbnail && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/10">
+            <PlayCircle className="w-8 h-8 text-white/80 drop-shadow-md" />
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <Image
+      src={asset.url}
+      alt={asset.fileKey}
+      fill
+      unoptimized
+      className={isThumbnail ? "object-cover" : "object-contain"}
+    />
+  );
+}
+
+// --- Main Page ---
+
 export default function GalleryPage() {
   const { media, isLoading } = useVaultGallery();
   const [timeScale, setTimeScale] = useState<TimeScale>("week");
 
-  // Basic Grouping Logic
   const groupedMedia = useMemo(() => {
     if (!media.length) return {};
     const groups: Record<string, MediaAsset[]> = {};
 
-    // Ensure chronological order
     const sorted = [...media].sort(
       (a, b) =>
         new Date(b.captureTime).getTime() - new Date(a.captureTime).getTime(),
@@ -61,19 +108,20 @@ export default function GalleryPage() {
 
   if (isLoading)
     return (
-      <div className="p-8 font-mono text-xs uppercase">Syncing Vault...</div>
+      <div className="p-8 font-mono text-[10px] uppercase tracking-widest animate-pulse">
+        Establishing Connection...
+      </div>
     );
 
   return (
     <div className="min-h-screen bg-background text-foreground p-4 md:p-8">
-      {/* Utility Header */}
       <header className="flex items-center justify-between mb-8 border-b pb-4">
         <div>
           <h1 className="text-lg font-bold uppercase tracking-tighter">
-            Engram Vault
+            Vault Gallery
           </h1>
           <p className="text-[10px] font-mono text-muted-foreground uppercase">
-            {media.length} assets synced
+            {media.length} nodes active
           </p>
         </div>
         <div className="flex items-center gap-4">
@@ -90,43 +138,26 @@ export default function GalleryPage() {
         </div>
       </header>
 
-      {/* Timescale Selector */}
       <div className="mb-12">
         <Tabs
           value={timeScale}
           onValueChange={(v) => setTimeScale(v as TimeScale)}
         >
           <TabsList className="bg-muted/50">
-            <TabsTrigger
-              value="day"
-              className="text-[10px] uppercase font-bold"
-            >
-              Day
-            </TabsTrigger>
-            <TabsTrigger
-              value="week"
-              className="text-[10px] uppercase font-bold"
-            >
-              Week
-            </TabsTrigger>
-            <TabsTrigger
-              value="month"
-              className="text-[10px] uppercase font-bold"
-            >
-              Month
-            </TabsTrigger>
-            <TabsTrigger
-              value="year"
-              className="text-[10px] uppercase font-bold"
-            >
-              Year
-            </TabsTrigger>
+            {["day", "week", "month", "year"].map((t) => (
+              <TabsTrigger
+                key={t}
+                value={t}
+                className="text-[10px] uppercase font-bold px-6"
+              >
+                {t}
+              </TabsTrigger>
+            ))}
           </TabsList>
         </Tabs>
       </div>
 
-      {/* Grouped Grid */}
-      <div className="space-y-12">
+      <div className="space-y-12 pb-24">
         {Object.entries(groupedMedia).map(([label, assets]) => (
           <section key={label}>
             <div className="flex items-center gap-4 mb-4">
@@ -143,62 +174,64 @@ export default function GalleryPage() {
               {assets.map((asset) => (
                 <Dialog key={asset.id}>
                   <DialogTrigger asChild>
-                    <div className="aspect-square relative bg-muted cursor-pointer hover:opacity-80 transition-opacity">
-                      <Image
-                        src={asset.url}
-                        alt=""
-                        fill
-                        unoptimized
-                        className="object-cover"
-                      />
+                    <div className="aspect-square relative bg-muted cursor-pointer hover:ring-1 hover:ring-primary transition-all rounded overflow-hidden">
+                      <MediaRenderer asset={asset} isThumbnail={true} />
                       {asset.latitude && (
-                        <div className="absolute top-1 right-1">
-                          <MapPin className="w-3 h-3 text-white drop-shadow-md" />
+                        <div className="absolute top-1 right-1 bg-black/40 p-1 rounded-sm">
+                          <MapPin className="w-2.5 h-2.5 text-white" />
                         </div>
                       )}
                     </div>
                   </DialogTrigger>
 
-                  {/* Simple Detail View */}
-                  <DialogContent className="max-w-3xl">
-                    <div className="space-y-4">
-                      <div className="aspect-video relative bg-black rounded-lg overflow-hidden">
-                        <Image
-                          src={asset.url}
-                          alt=""
-                          fill
-                          unoptimized
-                          className="object-contain"
-                        />
+                  <DialogContent className="max-w-4xl p-6 bg-zinc-950 border-white/10">
+                    <DialogHeader className="sr-only">
+                      <DialogTitle>
+                        Asset Details for {asset.fileKey}
+                      </DialogTitle>
+                    </DialogHeader>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-2">
+                      <div className="md:col-span-2 aspect-video relative bg-black rounded-lg overflow-hidden border border-white/5">
+                        <MediaRenderer asset={asset} isThumbnail={false} />
                       </div>
-                      <div className="grid grid-cols-2 gap-4 text-[10px] font-mono uppercase">
-                        <div className="p-3 bg-muted rounded">
-                          <p className="text-muted-foreground mb-1">
-                            Captured At
+
+                      <div className="space-y-4">
+                        <div className="space-y-1 border-b border-white/5 pb-4">
+                          <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">
+                            Context Info
                           </p>
-                          <p className="font-bold">
-                            {format(
-                              new Date(asset.captureTime),
-                              "yyyy-MM-dd HH:mm:ss",
-                            )}
-                          </p>
+                          <h3 className="text-xs font-bold uppercase italic text-zinc-300">
+                            File Metadata
+                          </h3>
                         </div>
-                        <div className="p-3 bg-muted rounded">
-                          <p className="text-muted-foreground mb-1">
-                            Mime Type
-                          </p>
-                          <p className="font-bold">{asset.mimeType}</p>
-                        </div>
-                        {asset.latitude && (
-                          <div className="p-3 bg-muted rounded col-span-2">
-                            <p className="text-muted-foreground mb-1">
-                              Coordinates
-                            </p>
-                            <p className="font-bold">
-                              {asset.latitude}, {asset.longitude}
+
+                        <div className="grid grid-cols-1 gap-3 text-[10px] font-mono uppercase">
+                          <div className="p-3 bg-white/5 rounded">
+                            <p className="text-zinc-500 mb-1">Captured</p>
+                            <p className="text-zinc-200">
+                              {format(
+                                new Date(asset.captureTime),
+                                "yyyy-MM-dd HH:mm:ss",
+                              )}
                             </p>
                           </div>
-                        )}
+                          {asset.latitude && (
+                            <div className="p-3 bg-white/5 rounded border border-blue-500/20">
+                              <p className="text-blue-500/60 mb-1">Location</p>
+                              <p className="text-blue-400">
+                                {asset.latitude.toFixed(4)},{" "}
+                                {asset.longitude?.toFixed(4)}
+                              </p>
+                            </div>
+                          )}
+                          <div className="p-3 bg-white/5 rounded">
+                            <p className="text-zinc-500 mb-1">File ID</p>
+                            <p className="text-zinc-200 truncate">
+                              {asset.fileKey.split("/").pop()}
+                            </p>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </DialogContent>
@@ -208,14 +241,6 @@ export default function GalleryPage() {
           </section>
         ))}
       </div>
-
-      {media.length === 0 && !isLoading && (
-        <div className="py-20 text-center border-2 border-dashed rounded-xl">
-          <p className="text-xs font-mono uppercase text-muted-foreground">
-            No media found in vault
-          </p>
-        </div>
-      )}
     </div>
   );
 }
