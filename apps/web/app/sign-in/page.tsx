@@ -1,33 +1,48 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { SignIn } from "@clerk/nextjs";
 
 export default function SignInPage() {
   const handleDemoLogin = () => {
     // We will wire this up to a Clerk test token or programmatic sign-in later.
-    // For now, it's just the UI foundation.
     alert("Demo login execution will be wired up here!");
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-950 p-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-950 p-4 font-sans">
       <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-zinc-100">Engram</h1>
-        <p className="text-zinc-400 mt-2">Personal Media Vault</p>
+        <h1 className="text-4xl font-black tracking-widest text-zinc-100 uppercase">
+          Engram
+        </h1>
+        <p className="text-zinc-400 mt-2 text-sm tracking-wide">
+          Personal Context Engine
+        </p>
       </div>
 
-      {/* Standard Clerk Login for You */}
-      <SignIn path="/sign-in" routing="path" signUpUrl="/" />
+      {/* Standard Clerk Login */}
+      {/* Note: In the future, we can pass appearance={{ baseTheme: dark }} to match the UI */}
+      <SignIn path="/sign-in" routing="path" signUpUrl="/sign-up" />
 
       {/* Portfolio Demo Entry for Guests */}
-      <div className="mt-8 flex flex-col items-center space-y-4 border-t border-zinc-800 pt-8">
-        <p className="text-sm text-zinc-500">Exploring the architecture?</p>
-        <button
-          onClick={handleDemoLogin}
-          className="rounded-md bg-zinc-100 px-6 py-2 text-sm font-medium text-zinc-900 transition-colors hover:bg-zinc-300"
-        >
-          View Live Demo
-        </button>
+      <div className="mt-8 flex w-full max-w-[400px] flex-col space-y-4">
+        <div className="flex items-center space-x-4">
+          <Separator className="flex-1 bg-zinc-800" />
+          <span className="text-xs text-zinc-600 font-mono uppercase">Or</span>
+          <Separator className="flex-1 bg-zinc-800" />
+        </div>
+
+        <div className="flex flex-col items-center space-y-3 pt-2 w-full">
+          <p className="text-sm text-zinc-500">Exploring the architecture?</p>
+          <Button
+            variant="secondary"
+            className="w-full font-bold uppercase tracking-wider bg-zinc-100 text-zinc-900 hover:bg-zinc-300 transition-colors"
+            onClick={handleDemoLogin}
+          >
+            View Live Demo
+          </Button>
+        </div>
       </div>
     </div>
   );
