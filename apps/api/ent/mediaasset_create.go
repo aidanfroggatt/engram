@@ -27,15 +27,9 @@ func (_c *MediaAssetCreate) SetUserID(v string) *MediaAssetCreate {
 	return _c
 }
 
-// SetB2URL sets the "b2_url" field.
-func (_c *MediaAssetCreate) SetB2URL(v string) *MediaAssetCreate {
-	_c.mutation.SetB2URL(v)
-	return _c
-}
-
-// SetCaptureTime sets the "capture_time" field.
-func (_c *MediaAssetCreate) SetCaptureTime(v time.Time) *MediaAssetCreate {
-	_c.mutation.SetCaptureTime(v)
+// SetFileKey sets the "file_key" field.
+func (_c *MediaAssetCreate) SetFileKey(v string) *MediaAssetCreate {
+	_c.mutation.SetFileKey(v)
 	return _c
 }
 
@@ -45,16 +39,36 @@ func (_c *MediaAssetCreate) SetMimeType(v string) *MediaAssetCreate {
 	return _c
 }
 
-// SetGeom sets the "geom" field.
-func (_c *MediaAssetCreate) SetGeom(v string) *MediaAssetCreate {
-	_c.mutation.SetGeom(v)
+// SetCaptureTime sets the "capture_time" field.
+func (_c *MediaAssetCreate) SetCaptureTime(v time.Time) *MediaAssetCreate {
+	_c.mutation.SetCaptureTime(v)
 	return _c
 }
 
-// SetNillableGeom sets the "geom" field if the given value is not nil.
-func (_c *MediaAssetCreate) SetNillableGeom(v *string) *MediaAssetCreate {
+// SetLatitude sets the "latitude" field.
+func (_c *MediaAssetCreate) SetLatitude(v float64) *MediaAssetCreate {
+	_c.mutation.SetLatitude(v)
+	return _c
+}
+
+// SetNillableLatitude sets the "latitude" field if the given value is not nil.
+func (_c *MediaAssetCreate) SetNillableLatitude(v *float64) *MediaAssetCreate {
 	if v != nil {
-		_c.SetGeom(*v)
+		_c.SetLatitude(*v)
+	}
+	return _c
+}
+
+// SetLongitude sets the "longitude" field.
+func (_c *MediaAssetCreate) SetLongitude(v float64) *MediaAssetCreate {
+	_c.mutation.SetLongitude(v)
+	return _c
+}
+
+// SetNillableLongitude sets the "longitude" field if the given value is not nil.
+func (_c *MediaAssetCreate) SetNillableLongitude(v *float64) *MediaAssetCreate {
+	if v != nil {
+		_c.SetLongitude(*v)
 	}
 	return _c
 }
@@ -142,16 +156,13 @@ func (_c *MediaAssetCreate) check() error {
 			return &ValidationError{Name: "user_id", err: fmt.Errorf(`ent: validator failed for field "MediaAsset.user_id": %w`, err)}
 		}
 	}
-	if _, ok := _c.mutation.B2URL(); !ok {
-		return &ValidationError{Name: "b2_url", err: errors.New(`ent: missing required field "MediaAsset.b2_url"`)}
+	if _, ok := _c.mutation.FileKey(); !ok {
+		return &ValidationError{Name: "file_key", err: errors.New(`ent: missing required field "MediaAsset.file_key"`)}
 	}
-	if v, ok := _c.mutation.B2URL(); ok {
-		if err := mediaasset.B2URLValidator(v); err != nil {
-			return &ValidationError{Name: "b2_url", err: fmt.Errorf(`ent: validator failed for field "MediaAsset.b2_url": %w`, err)}
+	if v, ok := _c.mutation.FileKey(); ok {
+		if err := mediaasset.FileKeyValidator(v); err != nil {
+			return &ValidationError{Name: "file_key", err: fmt.Errorf(`ent: validator failed for field "MediaAsset.file_key": %w`, err)}
 		}
-	}
-	if _, ok := _c.mutation.CaptureTime(); !ok {
-		return &ValidationError{Name: "capture_time", err: errors.New(`ent: missing required field "MediaAsset.capture_time"`)}
 	}
 	if _, ok := _c.mutation.MimeType(); !ok {
 		return &ValidationError{Name: "mime_type", err: errors.New(`ent: missing required field "MediaAsset.mime_type"`)}
@@ -160,6 +171,9 @@ func (_c *MediaAssetCreate) check() error {
 		if err := mediaasset.MimeTypeValidator(v); err != nil {
 			return &ValidationError{Name: "mime_type", err: fmt.Errorf(`ent: validator failed for field "MediaAsset.mime_type": %w`, err)}
 		}
+	}
+	if _, ok := _c.mutation.CaptureTime(); !ok {
+		return &ValidationError{Name: "capture_time", err: errors.New(`ent: missing required field "MediaAsset.capture_time"`)}
 	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "MediaAsset.created_at"`)}
@@ -203,21 +217,25 @@ func (_c *MediaAssetCreate) createSpec() (*MediaAsset, *sqlgraph.CreateSpec) {
 		_spec.SetField(mediaasset.FieldUserID, field.TypeString, value)
 		_node.UserID = value
 	}
-	if value, ok := _c.mutation.B2URL(); ok {
-		_spec.SetField(mediaasset.FieldB2URL, field.TypeString, value)
-		_node.B2URL = value
-	}
-	if value, ok := _c.mutation.CaptureTime(); ok {
-		_spec.SetField(mediaasset.FieldCaptureTime, field.TypeTime, value)
-		_node.CaptureTime = value
+	if value, ok := _c.mutation.FileKey(); ok {
+		_spec.SetField(mediaasset.FieldFileKey, field.TypeString, value)
+		_node.FileKey = value
 	}
 	if value, ok := _c.mutation.MimeType(); ok {
 		_spec.SetField(mediaasset.FieldMimeType, field.TypeString, value)
 		_node.MimeType = value
 	}
-	if value, ok := _c.mutation.Geom(); ok {
-		_spec.SetField(mediaasset.FieldGeom, field.TypeString, value)
-		_node.Geom = value
+	if value, ok := _c.mutation.CaptureTime(); ok {
+		_spec.SetField(mediaasset.FieldCaptureTime, field.TypeTime, value)
+		_node.CaptureTime = value
+	}
+	if value, ok := _c.mutation.Latitude(); ok {
+		_spec.SetField(mediaasset.FieldLatitude, field.TypeFloat64, value)
+		_node.Latitude = &value
+	}
+	if value, ok := _c.mutation.Longitude(); ok {
+		_spec.SetField(mediaasset.FieldLongitude, field.TypeFloat64, value)
+		_node.Longitude = &value
 	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(mediaasset.FieldCreatedAt, field.TypeTime, value)

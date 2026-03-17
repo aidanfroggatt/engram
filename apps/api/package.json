@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "go run main.go",
+    "dev": "air",
     "build": "go build -o bin/api main.go"
   }
 }

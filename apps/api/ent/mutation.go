@@ -37,10 +37,13 @@ type MediaAssetMutation struct {
 	typ           string
 	id            *uuid.UUID
 	user_id       *string
-	b2_url        *string
-	capture_time  *time.Time
+	file_key      *string
 	mime_type     *string
-	geom          *string
+	capture_time  *time.Time
+	latitude      *float64
+	addlatitude   *float64
+	longitude     *float64
+	addlongitude  *float64
 	created_at    *time.Time
 	clearedFields map[string]struct{}
 	done          bool
@@ -188,76 +191,40 @@ func (m *MediaAssetMutation) ResetUserID() {
 	m.user_id = nil
 }
 
-// SetB2URL sets the "b2_url" field.
-func (m *MediaAssetMutation) SetB2URL(s string) {
-	m.b2_url = &s
+// SetFileKey sets the "file_key" field.
+func (m *MediaAssetMutation) SetFileKey(s string) {
+	m.file_key = &s
 }
 
-// B2URL returns the value of the "b2_url" field in the mutation.
-func (m *MediaAssetMutation) B2URL() (r string, exists bool) {
-	v := m.b2_url
+// FileKey returns the value of the "file_key" field in the mutation.
+func (m *MediaAssetMutation) FileKey() (r string, exists bool) {
+	v := m.file_key
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldB2URL returns the old "b2_url" field's value of the MediaAsset entity.
+// OldFileKey returns the old "file_key" field's value of the MediaAsset entity.
 // If the MediaAsset object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MediaAssetMutation) OldB2URL(ctx context.Context) (v string, err error) {
+func (m *MediaAssetMutation) OldFileKey(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldB2URL is only allowed on UpdateOne operations")
+		return v, errors.New("OldFileKey is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldB2URL requires an ID field in the mutation")
+		return v, errors.New("OldFileKey requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldB2URL: %w", err)
+		return v, fmt.Errorf("querying old value for OldFileKey: %w", err)
 	}
-	return oldValue.B2URL, nil
+	return oldValue.FileKey, nil
 }
 
-// ResetB2URL resets all changes to the "b2_url" field.
-func (m *MediaAssetMutation) ResetB2URL() {
-	m.b2_url = nil
-}
-
-// SetCaptureTime sets the "capture_time" field.
-func (m *MediaAssetMutation) SetCaptureTime(t time.Time) {
-	m.capture_time = &t
-}
-
-// CaptureTime returns the value of the "capture_time" field in the mutation.
-func (m *MediaAssetMutation) CaptureTime() (r time.Time, exists bool) {
-	v := m.capture_time
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCaptureTime returns the old "capture_time" field's value of the MediaAsset entity.
-// If the MediaAsset object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MediaAssetMutation) OldCaptureTime(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCaptureTime is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCaptureTime requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCaptureTime: %w", err)
-	}
-	return oldValue.CaptureTime, nil
-}
-
-// ResetCaptureTime resets all changes to the "capture_time" field.
-func (m *MediaAssetMutation) ResetCaptureTime() {
-	m.capture_time = nil
+// ResetFileKey resets all changes to the "file_key" field.
+func (m *MediaAssetMutation) ResetFileKey() {
+	m.file_key = nil
 }
 
 // SetMimeType sets the "mime_type" field.
@@ -296,53 +263,180 @@ func (m *MediaAssetMutation) ResetMimeType() {
 	m.mime_type = nil
 }
 
-// SetGeom sets the "geom" field.
-func (m *MediaAssetMutation) SetGeom(s string) {
-	m.geom = &s
+// SetCaptureTime sets the "capture_time" field.
+func (m *MediaAssetMutation) SetCaptureTime(t time.Time) {
+	m.capture_time = &t
 }
 
-// Geom returns the value of the "geom" field in the mutation.
-func (m *MediaAssetMutation) Geom() (r string, exists bool) {
-	v := m.geom
+// CaptureTime returns the value of the "capture_time" field in the mutation.
+func (m *MediaAssetMutation) CaptureTime() (r time.Time, exists bool) {
+	v := m.capture_time
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldGeom returns the old "geom" field's value of the MediaAsset entity.
+// OldCaptureTime returns the old "capture_time" field's value of the MediaAsset entity.
 // If the MediaAsset object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MediaAssetMutation) OldGeom(ctx context.Context) (v string, err error) {
+func (m *MediaAssetMutation) OldCaptureTime(ctx context.Context) (v time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldGeom is only allowed on UpdateOne operations")
+		return v, errors.New("OldCaptureTime is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldGeom requires an ID field in the mutation")
+		return v, errors.New("OldCaptureTime requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldGeom: %w", err)
+		return v, fmt.Errorf("querying old value for OldCaptureTime: %w", err)
 	}
-	return oldValue.Geom, nil
+	return oldValue.CaptureTime, nil
 }
 
-// ClearGeom clears the value of the "geom" field.
-func (m *MediaAssetMutation) ClearGeom() {
-	m.geom = nil
-	m.clearedFields[mediaasset.FieldGeom] = struct{}{}
+// ResetCaptureTime resets all changes to the "capture_time" field.
+func (m *MediaAssetMutation) ResetCaptureTime() {
+	m.capture_time = nil
 }
 
-// GeomCleared returns if the "geom" field was cleared in this mutation.
-func (m *MediaAssetMutation) GeomCleared() bool {
-	_, ok := m.clearedFields[mediaasset.FieldGeom]
+// SetLatitude sets the "latitude" field.
+func (m *MediaAssetMutation) SetLatitude(f float64) {
+	m.latitude = &f
+	m.addlatitude = nil
+}
+
+// Latitude returns the value of the "latitude" field in the mutation.
+func (m *MediaAssetMutation) Latitude() (r float64, exists bool) {
+	v := m.latitude
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLatitude returns the old "latitude" field's value of the MediaAsset entity.
+// If the MediaAsset object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MediaAssetMutation) OldLatitude(ctx context.Context) (v *float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLatitude is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLatitude requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLatitude: %w", err)
+	}
+	return oldValue.Latitude, nil
+}
+
+// AddLatitude adds f to the "latitude" field.
+func (m *MediaAssetMutation) AddLatitude(f float64) {
+	if m.addlatitude != nil {
+		*m.addlatitude += f
+	} else {
+		m.addlatitude = &f
+	}
+}
+
+// AddedLatitude returns the value that was added to the "latitude" field in this mutation.
+func (m *MediaAssetMutation) AddedLatitude() (r float64, exists bool) {
+	v := m.addlatitude
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearLatitude clears the value of the "latitude" field.
+func (m *MediaAssetMutation) ClearLatitude() {
+	m.latitude = nil
+	m.addlatitude = nil
+	m.clearedFields[mediaasset.FieldLatitude] = struct{}{}
+}
+
+// LatitudeCleared returns if the "latitude" field was cleared in this mutation.
+func (m *MediaAssetMutation) LatitudeCleared() bool {
+	_, ok := m.clearedFields[mediaasset.FieldLatitude]
 	return ok
 }
 
-// ResetGeom resets all changes to the "geom" field.
-func (m *MediaAssetMutation) ResetGeom() {
-	m.geom = nil
-	delete(m.clearedFields, mediaasset.FieldGeom)
+// ResetLatitude resets all changes to the "latitude" field.
+func (m *MediaAssetMutation) ResetLatitude() {
+	m.latitude = nil
+	m.addlatitude = nil
+	delete(m.clearedFields, mediaasset.FieldLatitude)
+}
+
+// SetLongitude sets the "longitude" field.
+func (m *MediaAssetMutation) SetLongitude(f float64) {
+	m.longitude = &f
+	m.addlongitude = nil
+}
+
+// Longitude returns the value of the "longitude" field in the mutation.
+func (m *MediaAssetMutation) Longitude() (r float64, exists bool) {
+	v := m.longitude
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLongitude returns the old "longitude" field's value of the MediaAsset entity.
+// If the MediaAsset object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MediaAssetMutation) OldLongitude(ctx context.Context) (v *float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLongitude is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLongitude requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLongitude: %w", err)
+	}
+	return oldValue.Longitude, nil
+}
+
+// AddLongitude adds f to the "longitude" field.
+func (m *MediaAssetMutation) AddLongitude(f float64) {
+	if m.addlongitude != nil {
+		*m.addlongitude += f
+	} else {
+		m.addlongitude = &f
+	}
+}
+
+// AddedLongitude returns the value that was added to the "longitude" field in this mutation.
+func (m *MediaAssetMutation) AddedLongitude() (r float64, exists bool) {
+	v := m.addlongitude
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearLongitude clears the value of the "longitude" field.
+func (m *MediaAssetMutation) ClearLongitude() {
+	m.longitude = nil
+	m.addlongitude = nil
+	m.clearedFields[mediaasset.FieldLongitude] = struct{}{}
+}
+
+// LongitudeCleared returns if the "longitude" field was cleared in this mutation.
+func (m *MediaAssetMutation) LongitudeCleared() bool {
+	_, ok := m.clearedFields[mediaasset.FieldLongitude]
+	return ok
+}
+
+// ResetLongitude resets all changes to the "longitude" field.
+func (m *MediaAssetMutation) ResetLongitude() {
+	m.longitude = nil
+	m.addlongitude = nil
+	delete(m.clearedFields, mediaasset.FieldLongitude)
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -415,21 +509,24 @@ func (m *MediaAssetMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *MediaAssetMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 7)
 	if m.user_id != nil {
 		fields = append(fields, mediaasset.FieldUserID)
 	}
-	if m.b2_url != nil {
-		fields = append(fields, mediaasset.FieldB2URL)
-	}
-	if m.capture_time != nil {
-		fields = append(fields, mediaasset.FieldCaptureTime)
+	if m.file_key != nil {
+		fields = append(fields, mediaasset.FieldFileKey)
 	}
 	if m.mime_type != nil {
 		fields = append(fields, mediaasset.FieldMimeType)
 	}
-	if m.geom != nil {
-		fields = append(fields, mediaasset.FieldGeom)
+	if m.capture_time != nil {
+		fields = append(fields, mediaasset.FieldCaptureTime)
+	}
+	if m.latitude != nil {
+		fields = append(fields, mediaasset.FieldLatitude)
+	}
+	if m.longitude != nil {
+		fields = append(fields, mediaasset.FieldLongitude)
 	}
 	if m.created_at != nil {
 		fields = append(fields, mediaasset.FieldCreatedAt)
@@ -444,14 +541,16 @@ func (m *MediaAssetMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case mediaasset.FieldUserID:
 		return m.UserID()
-	case mediaasset.FieldB2URL:
-		return m.B2URL()
-	case mediaasset.FieldCaptureTime:
-		return m.CaptureTime()
+	case mediaasset.FieldFileKey:
+		return m.FileKey()
 	case mediaasset.FieldMimeType:
 		return m.MimeType()
-	case mediaasset.FieldGeom:
-		return m.Geom()
+	case mediaasset.FieldCaptureTime:
+		return m.CaptureTime()
+	case mediaasset.FieldLatitude:
+		return m.Latitude()
+	case mediaasset.FieldLongitude:
+		return m.Longitude()
 	case mediaasset.FieldCreatedAt:
 		return m.CreatedAt()
 	}
@@ -465,14 +564,16 @@ func (m *MediaAssetMutation) OldField(ctx context.Context, name string) (ent.Val
 	switch name {
 	case mediaasset.FieldUserID:
 		return m.OldUserID(ctx)
-	case mediaasset.FieldB2URL:
-		return m.OldB2URL(ctx)
-	case mediaasset.FieldCaptureTime:
-		return m.OldCaptureTime(ctx)
+	case mediaasset.FieldFileKey:
+		return m.OldFileKey(ctx)
 	case mediaasset.FieldMimeType:
 		return m.OldMimeType(ctx)
-	case mediaasset.FieldGeom:
-		return m.OldGeom(ctx)
+	case mediaasset.FieldCaptureTime:
+		return m.OldCaptureTime(ctx)
+	case mediaasset.FieldLatitude:
+		return m.OldLatitude(ctx)
+	case mediaasset.FieldLongitude:
+		return m.OldLongitude(ctx)
 	case mediaasset.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
 	}
@@ -491,19 +592,12 @@ func (m *MediaAssetMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetUserID(v)
 		return nil
-	case mediaasset.FieldB2URL:
+	case mediaasset.FieldFileKey:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetB2URL(v)
-		return nil
-	case mediaasset.FieldCaptureTime:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCaptureTime(v)
+		m.SetFileKey(v)
 		return nil
 	case mediaasset.FieldMimeType:
 		v, ok := value.(string)
@@ -512,12 +606,26 @@ func (m *MediaAssetMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetMimeType(v)
 		return nil
-	case mediaasset.FieldGeom:
-		v, ok := value.(string)
+	case mediaasset.FieldCaptureTime:
+		v, ok := value.(time.Time)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetGeom(v)
+		m.SetCaptureTime(v)
+		return nil
+	case mediaasset.FieldLatitude:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLatitude(v)
+		return nil
+	case mediaasset.FieldLongitude:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLongitude(v)
 		return nil
 	case mediaasset.FieldCreatedAt:
 		v, ok := value.(time.Time)
@@ -533,13 +641,26 @@ func (m *MediaAssetMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *MediaAssetMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addlatitude != nil {
+		fields = append(fields, mediaasset.FieldLatitude)
+	}
+	if m.addlongitude != nil {
+		fields = append(fields, mediaasset.FieldLongitude)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *MediaAssetMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case mediaasset.FieldLatitude:
+		return m.AddedLatitude()
+	case mediaasset.FieldLongitude:
+		return m.AddedLongitude()
+	}
 	return nil, false
 }
 
@@ -548,6 +669,20 @@ func (m *MediaAssetMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *MediaAssetMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case mediaasset.FieldLatitude:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddLatitude(v)
+		return nil
+	case mediaasset.FieldLongitude:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddLongitude(v)
+		return nil
 	}
 	return fmt.Errorf("unknown MediaAsset numeric field %s", name)
 }
@@ -556,8 +691,11 @@ func (m *MediaAssetMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *MediaAssetMutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(mediaasset.FieldGeom) {
-		fields = append(fields, mediaasset.FieldGeom)
+	if m.FieldCleared(mediaasset.FieldLatitude) {
+		fields = append(fields, mediaasset.FieldLatitude)
+	}
+	if m.FieldCleared(mediaasset.FieldLongitude) {
+		fields = append(fields, mediaasset.FieldLongitude)
 	}
 	return fields
 }
@@ -573,8 +711,11 @@ func (m *MediaAssetMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *MediaAssetMutation) ClearField(name string) error {
 	switch name {
-	case mediaasset.FieldGeom:
-		m.ClearGeom()
+	case mediaasset.FieldLatitude:
+		m.ClearLatitude()
+		return nil
+	case mediaasset.FieldLongitude:
+		m.ClearLongitude()
 		return nil
 	}
 	return fmt.Errorf("unknown MediaAsset nullable field %s", name)
@@ -587,17 +728,20 @@ func (m *MediaAssetMutation) ResetField(name string) error {
 	case mediaasset.FieldUserID:
 		m.ResetUserID()
 		return nil
-	case mediaasset.FieldB2URL:
-		m.ResetB2URL()
-		return nil
-	case mediaasset.FieldCaptureTime:
-		m.ResetCaptureTime()
+	case mediaasset.FieldFileKey:
+		m.ResetFileKey()
 		return nil
 	case mediaasset.FieldMimeType:
 		m.ResetMimeType()
 		return nil
-	case mediaasset.FieldGeom:
-		m.ResetGeom()
+	case mediaasset.FieldCaptureTime:
+		m.ResetCaptureTime()
+		return nil
+	case mediaasset.FieldLatitude:
+		m.ResetLatitude()
+		return nil
+	case mediaasset.FieldLongitude:
+		m.ResetLongitude()
 		return nil
 	case mediaasset.FieldCreatedAt:
 		m.ResetCreatedAt()

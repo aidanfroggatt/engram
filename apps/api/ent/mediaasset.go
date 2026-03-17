@@ -20,14 +20,16 @@ type MediaAsset struct {
 	ID uuid.UUID `json:"id,omitempty"`
 	// UserID holds the value of the "user_id" field.
 	UserID string `json:"user_id,omitempty"`
-	// B2URL holds the value of the "b2_url" field.
-	B2URL string `json:"b2_url,omitempty"`
-	// CaptureTime holds the value of the "capture_time" field.
-	CaptureTime time.Time `json:"capture_time,omitempty"`
+	// FileKey holds the value of the "file_key" field.
+	FileKey string `json:"file_key,omitempty"`
 	// MimeType holds the value of the "mime_type" field.
 	MimeType string `json:"mime_type,omitempty"`
-	// Geom holds the value of the "geom" field.
-	Geom string `json:"geom,omitempty"`
+	// CaptureTime holds the value of the "capture_time" field.
+	CaptureTime time.Time `json:"capture_time,omitempty"`
+	// Latitude holds the value of the "latitude" field.
+	Latitude *float64 `json:"latitude,omitempty"`
+	// Longitude holds the value of the "longitude" field.
+	Longitude *float64 `json:"longitude,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt    time.Time `json:"created_at,omitempty"`
 	selectValues sql.SelectValues
@@ -38,7 +40,9 @@ func (*MediaAsset) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case mediaasset.FieldUserID, mediaasset.FieldB2URL, mediaasset.FieldMimeType, mediaasset.FieldGeom:
+		case mediaasset.FieldLatitude, mediaasset.FieldLongitude:
+			values[i] = new(sql.NullFloat64)
+		case mediaasset.FieldUserID, mediaasset.FieldFileKey, mediaasset.FieldMimeType:
 			values[i] = new(sql.NullString)
 		case mediaasset.FieldCaptureTime, mediaasset.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
@@ -71,17 +75,11 @@ func (_m *MediaAsset) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.UserID = value.String
 			}
-		case mediaasset.FieldB2URL:
+		case mediaasset.FieldFileKey:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field b2_url", values[i])
+				return fmt.Errorf("unexpected type %T for field file_key", values[i])
 			} else if value.Valid {
-				_m.B2URL = value.String
-			}
-		case mediaasset.FieldCaptureTime:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field capture_time", values[i])
-			} else if value.Valid {
-				_m.CaptureTime = value.Time
+				_m.FileKey = value.String
 			}
 		case mediaasset.FieldMimeType:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -89,11 +87,25 @@ func (_m *MediaAsset) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.MimeType = value.String
 			}
-		case mediaasset.FieldGeom:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field geom", values[i])
+		case mediaasset.FieldCaptureTime:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field capture_time", values[i])
 			} else if value.Valid {
-				_m.Geom = value.String
+				_m.CaptureTime = value.Time
+			}
+		case mediaasset.FieldLatitude:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field latitude", values[i])
+			} else if value.Valid {
+				_m.Latitude = new(float64)
+				*_m.Latitude = value.Float64
+			}
+		case mediaasset.FieldLongitude:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field longitude", values[i])
+			} else if value.Valid {
+				_m.Longitude = new(float64)
+				*_m.Longitude = value.Float64
 			}
 		case mediaasset.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -140,17 +152,24 @@ func (_m *MediaAsset) String() string {
 	builder.WriteString("user_id=")
 	builder.WriteString(_m.UserID)
 	builder.WriteString(", ")
-	builder.WriteString("b2_url=")
-	builder.WriteString(_m.B2URL)
-	builder.WriteString(", ")
-	builder.WriteString("capture_time=")
-	builder.WriteString(_m.CaptureTime.Format(time.ANSIC))
+	builder.WriteString("file_key=")
+	builder.WriteString(_m.FileKey)
 	builder.WriteString(", ")
 	builder.WriteString("mime_type=")
 	builder.WriteString(_m.MimeType)
 	builder.WriteString(", ")
-	builder.WriteString("geom=")
-	builder.WriteString(_m.Geom)
+	builder.WriteString("capture_time=")
+	builder.WriteString(_m.CaptureTime.Format(time.ANSIC))
+	builder.WriteString(", ")
+	if v := _m.Latitude; v != nil {
+		builder.WriteString("latitude=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.Longitude; v != nil {
+		builder.WriteString("longitude=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))

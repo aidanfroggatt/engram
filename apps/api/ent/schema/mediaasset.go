@@ -3,9 +3,7 @@ package schema
 import (
 	"time"
 
-	"entgo.io/contrib/entproto"
 	"entgo.io/ent"
-	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 	"github.com/google/uuid"
@@ -16,40 +14,30 @@ type MediaAsset struct {
 	ent.Schema
 }
 
-// Annotations of the MediaAsset (Tells entproto to generate a Protobuf Message and gRPC Service)
-func (MediaAsset) Annotations() []schema.Annotation {
-	return []schema.Annotation{
-		entproto.Message(),
-		entproto.Service(),
-	}
-}
-
 // Fields of the MediaAsset.
 func (MediaAsset) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("id", uuid.UUID{}).
 			Default(uuid.New).
-			Immutable().
-			Annotations(entproto.Field(1)),
+			Immutable(),
 		field.String("user_id").
 			NotEmpty().
-			Immutable().
-			Annotations(entproto.Field(2)),
-		field.String("b2_url").
+			Immutable(),
+		field.String("file_key"). // The B2 Path (e.g., user_123/abc.jpeg)
 			NotEmpty().
-			Annotations(entproto.Field(3)),
-		field.Time("capture_time").
-			Annotations(entproto.Field(4)),
+			Unique(),
 		field.String("mime_type").
-			NotEmpty().
-			Annotations(entproto.Field(5)),
-		field.String("geom").
+			NotEmpty(),
+		field.Time("capture_time"),
+		field.Float("latitude").
 			Optional().
-			Annotations(entproto.Field(6)),
+			Nillable(),
+		field.Float("longitude").
+			Optional().
+			Nillable(),
 		field.Time("created_at").
 			Default(time.Now).
-			Immutable().
-			Annotations(entproto.Field(7)),
+			Immutable(),
 	}
 }
 

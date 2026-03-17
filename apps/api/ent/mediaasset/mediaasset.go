@@ -16,14 +16,16 @@ const (
 	FieldID = "id"
 	// FieldUserID holds the string denoting the user_id field in the database.
 	FieldUserID = "user_id"
-	// FieldB2URL holds the string denoting the b2_url field in the database.
-	FieldB2URL = "b2_url"
-	// FieldCaptureTime holds the string denoting the capture_time field in the database.
-	FieldCaptureTime = "capture_time"
+	// FieldFileKey holds the string denoting the file_key field in the database.
+	FieldFileKey = "file_key"
 	// FieldMimeType holds the string denoting the mime_type field in the database.
 	FieldMimeType = "mime_type"
-	// FieldGeom holds the string denoting the geom field in the database.
-	FieldGeom = "geom"
+	// FieldCaptureTime holds the string denoting the capture_time field in the database.
+	FieldCaptureTime = "capture_time"
+	// FieldLatitude holds the string denoting the latitude field in the database.
+	FieldLatitude = "latitude"
+	// FieldLongitude holds the string denoting the longitude field in the database.
+	FieldLongitude = "longitude"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// Table holds the table name of the mediaasset in the database.
@@ -34,10 +36,11 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldUserID,
-	FieldB2URL,
-	FieldCaptureTime,
+	FieldFileKey,
 	FieldMimeType,
-	FieldGeom,
+	FieldCaptureTime,
+	FieldLatitude,
+	FieldLongitude,
 	FieldCreatedAt,
 }
 
@@ -54,8 +57,8 @@ func ValidColumn(column string) bool {
 var (
 	// UserIDValidator is a validator for the "user_id" field. It is called by the builders before save.
 	UserIDValidator func(string) error
-	// B2URLValidator is a validator for the "b2_url" field. It is called by the builders before save.
-	B2URLValidator func(string) error
+	// FileKeyValidator is a validator for the "file_key" field. It is called by the builders before save.
+	FileKeyValidator func(string) error
 	// MimeTypeValidator is a validator for the "mime_type" field. It is called by the builders before save.
 	MimeTypeValidator func(string) error
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
@@ -77,14 +80,9 @@ func ByUserID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUserID, opts...).ToFunc()
 }
 
-// ByB2URL orders the results by the b2_url field.
-func ByB2URL(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldB2URL, opts...).ToFunc()
-}
-
-// ByCaptureTime orders the results by the capture_time field.
-func ByCaptureTime(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCaptureTime, opts...).ToFunc()
+// ByFileKey orders the results by the file_key field.
+func ByFileKey(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFileKey, opts...).ToFunc()
 }
 
 // ByMimeType orders the results by the mime_type field.
@@ -92,9 +90,19 @@ func ByMimeType(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldMimeType, opts...).ToFunc()
 }
 
-// ByGeom orders the results by the geom field.
-func ByGeom(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldGeom, opts...).ToFunc()
+// ByCaptureTime orders the results by the capture_time field.
+func ByCaptureTime(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCaptureTime, opts...).ToFunc()
+}
+
+// ByLatitude orders the results by the latitude field.
+func ByLatitude(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLatitude, opts...).ToFunc()
+}
+
+// ByLongitude orders the results by the longitude field.
+func ByLongitude(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLongitude, opts...).ToFunc()
 }
 
 // ByCreatedAt orders the results by the created_at field.
