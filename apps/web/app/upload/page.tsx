@@ -9,6 +9,7 @@ import {
   MapPin,
   Plus,
   Trash2,
+  UploadCloud,
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -17,7 +18,6 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useMediaUpload } from "@/hooks/use-media-upload";
 import { extractMetadata } from "@/lib/exif";
 import { StagedFile } from "@/types/media";
@@ -75,11 +75,9 @@ function StagedAssetCard({ asset, onUpdate, onRemove }: StagedAssetCardProps) {
     field: "latitude" | "longitude",
   ): void => {
     const val = e.target.value;
-    // Regex allows empty, just "-", decimals, or complete floats
     if (val === "" || /^-?\d*\.?\d*$/.test(val)) {
       setter(val);
       const parsed = parseFloat(val);
-      // Update parent only if it's a valid complete number
       if (!isNaN(parsed)) {
         onUpdate(asset.id, { [field]: parsed });
       } else if (val === "") {
@@ -107,43 +105,52 @@ function StagedAssetCard({ asset, onUpdate, onRemove }: StagedAssetCardProps) {
 
   return (
     <div
-      className={`p-4 border rounded-lg bg-card transition-all ${isSuccess ? "opacity-40" : "shadow-sm"}`}
+      className={`p-4 md:p-5 border border-border/50 rounded-2xl bg-muted/5 backdrop-blur-sm transition-all duration-500 ${
+        isSuccess
+          ? "opacity-40 grayscale"
+          : "hover:bg-muted/10 hover:border-border shadow-sm"
+      }`}
     >
-      <div className="flex gap-4">
-        <div className="relative h-24 w-24 rounded bg-muted overflow-hidden shrink-0 border">
+      <div className="flex gap-4 md:gap-6">
+        {/* Media Preview */}
+        <div className="relative h-24 w-24 md:h-28 md:w-28 rounded-xl bg-black overflow-hidden shrink-0 border border-border/50 shadow-inner">
           {previewUrl &&
             (asset.mimeType.startsWith("video/") ? (
-              <video src={previewUrl} className="w-full h-full object-cover" />
+              <video
+                src={previewUrl}
+                className="w-full h-full object-cover opacity-90"
+              />
             ) : (
               <Image
                 src={previewUrl}
                 alt={asset.fileName}
                 fill
                 unoptimized
-                className="object-cover"
+                className="object-cover opacity-90"
               />
             ))}
           {isUploading && (
-            <div className="absolute inset-0 bg-background/60 flex items-center justify-center">
-              <Loader2 className="w-5 h-5 animate-spin text-primary" />
+            <div className="absolute inset-0 bg-background/60 backdrop-blur-sm flex items-center justify-center">
+              <Loader2 className="w-6 h-6 animate-spin text-foreground" />
             </div>
           )}
           {isSuccess && (
-            <div className="absolute inset-0 bg-primary/10 flex items-center justify-center">
-              <CheckCircle2 className="w-8 h-8 text-primary" />
+            <div className="absolute inset-0 bg-background/40 backdrop-blur-md flex items-center justify-center">
+              <CheckCircle2 className="w-8 h-8 text-foreground drop-shadow-lg" />
             </div>
           )}
         </div>
 
-        <div className="flex-1 space-y-3">
+        {/* Form Controls */}
+        <div className="flex-1 space-y-3 md:space-y-4">
           <div className="flex justify-between items-start">
-            <span className="text-[10px] font-mono text-muted-foreground uppercase truncate max-w-[180px]">
+            <span className="text-[10px] font-mono text-muted-foreground uppercase truncate max-w-[160px] md:max-w-[220px]">
               {asset.fileName}
             </span>
             {!isSuccess && !isUploading && (
               <button
                 onClick={() => onRemove(asset.id)}
-                className="text-muted-foreground hover:text-destructive p-1"
+                className="text-muted-foreground/50 hover:text-destructive transition-colors p-1"
                 aria-label="Remove asset"
               >
                 <Trash2 className="w-4 h-4" />
@@ -151,11 +158,11 @@ function StagedAssetCard({ asset, onUpdate, onRemove }: StagedAssetCardProps) {
             )}
           </div>
 
-          <div className="grid grid-cols-1 gap-3">
+          <div className="grid grid-cols-1 gap-2 md:gap-3">
             <div className="space-y-1">
               <div className="relative">
                 <Calendar
-                  className={`absolute left-2.5 top-2 w-3.5 h-3.5 ${needsDate ? "text-destructive" : "text-muted-foreground"}`}
+                  className={`absolute left-3 top-2.5 w-3.5 h-3.5 ${needsDate ? "text-destructive" : "text-muted-foreground/70"}`}
                 />
                 <Input
                   type="datetime-local"
@@ -167,19 +174,18 @@ function StagedAssetCard({ asset, onUpdate, onRemove }: StagedAssetCardProps) {
                       captureTime: isNaN(d.getTime()) ? undefined : d,
                     });
                   }}
-                  className={`h-8 pl-9 text-xs font-mono ${needsDate ? "border-destructive focus-visible:ring-destructive" : "bg-muted/30"}`}
+                  className={`h-9 pl-9 text-xs font-mono rounded-lg border-border/50 bg-background/50 focus-visible:ring-1 focus-visible:ring-foreground transition-all ${
+                    needsDate
+                      ? "border-destructive/50 bg-destructive/5 text-destructive focus-visible:ring-destructive"
+                      : ""
+                  }`}
                 />
               </div>
-              {needsDate && (
-                <p className="text-[9px] text-destructive uppercase font-bold tracking-tighter flex items-center gap-1">
-                  <AlertCircle className="w-3 h-3" /> Required for Vaulting
-                </p>
-              )}
             </div>
 
             <div className="flex gap-2">
               <div className="relative flex-1">
-                <MapPin className="absolute left-2.5 top-2 w-3.5 h-3.5 text-muted-foreground" />
+                <MapPin className="absolute left-3 top-2.5 w-3.5 h-3.5 text-muted-foreground/70" />
                 <Input
                   type="text"
                   placeholder="LAT"
@@ -189,7 +195,7 @@ function StagedAssetCard({ asset, onUpdate, onRemove }: StagedAssetCardProps) {
                     handleCoordChange(e, setLocalLat, "latitude")
                   }
                   onBlur={() => handleCoordBlur(localLat, "latitude")}
-                  className="h-8 pl-9 text-xs font-mono bg-muted/30"
+                  className="h-9 pl-9 text-xs font-mono rounded-lg border-border/50 bg-background/50 focus-visible:ring-1 focus-visible:ring-foreground transition-all"
                 />
               </div>
               <div className="relative flex-1">
@@ -202,14 +208,14 @@ function StagedAssetCard({ asset, onUpdate, onRemove }: StagedAssetCardProps) {
                     handleCoordChange(e, setLocalLng, "longitude")
                   }
                   onBlur={() => handleCoordBlur(localLng, "longitude")}
-                  className="h-8 px-3 text-xs font-mono bg-muted/30"
+                  className="h-9 px-3 text-xs font-mono rounded-lg border-border/50 bg-background/50 focus-visible:ring-1 focus-visible:ring-foreground transition-all"
                 />
               </div>
             </div>
           </div>
 
           {isErrorState && (
-            <p className="text-[9px] text-destructive font-bold uppercase flex items-center gap-1">
+            <p className="text-[9px] text-destructive font-bold uppercase flex items-center gap-1.5 mt-2 bg-destructive/10 px-2 py-1.5 rounded-md inline-flex">
               <AlertCircle className="w-3 h-3" />{" "}
               {asset.errorMessage || "Network Error"}
             </p>
@@ -314,41 +320,80 @@ export default function UploadBatchPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col p-4 md:p-8">
-      <header className="flex items-center justify-between mb-8 border-b pb-6">
-        <div className="flex items-center gap-4">
+    <div className="min-h-screen bg-background text-foreground selection:bg-primary selection:text-primary-foreground">
+      {/* --- DESKTOP & MOBILE TOP NAV (Info & Context) --- */}
+      <header className="fixed top-4 md:top-6 inset-x-4 md:inset-x-8 z-50 flex items-start justify-between pointer-events-none">
+        {/* Left: Branding & Status Pill */}
+        <div className="pointer-events-auto flex items-center gap-3 rounded-2xl border border-border/50 bg-background/60 p-2 pr-6 backdrop-blur-xl shadow-2xl transition-all hover:bg-background/80">
           <Button
-            variant="outline"
+            variant="ghost"
             size="icon"
             onClick={() => router.push("/")}
-            className="h-9 w-9 rounded-full"
+            className="h-10 w-10 rounded-xl hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-colors"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className="w-5 h-5" />
           </Button>
-          <div>
-            <h1 className="text-xl font-bold uppercase tracking-tighter text-foreground leading-tight">
+          <div className="flex flex-col py-1">
+            <h1 className="text-[11px] font-black uppercase tracking-widest leading-none text-foreground">
               Staging Area
             </h1>
-            <p className="text-[10px] font-mono text-muted-foreground uppercase">
+            <p className="mt-1 text-[8px] font-mono text-muted-foreground uppercase tracking-widest">
               Ready: {pendingFiles.length} • Total: {stagedFiles.length}
             </p>
           </div>
         </div>
-        <Button
-          disabled={!isReadyToCommit || isCommitting}
-          onClick={handleCommitBatch}
-          className="uppercase text-[10px] font-bold px-8 h-9"
-        >
-          {isCommitting ? "Vaulting..." : "Commit Batch"}
-        </Button>
+
+        {/* Right Action (Desktop Only) */}
+        <div className="pointer-events-auto hidden md:block">
+          <Button
+            onClick={handleCommitBatch}
+            disabled={!isReadyToCommit || isCommitting}
+            variant="outline"
+            className="h-14 rounded-2xl border-border/50 bg-background/60 px-6 text-[10px] font-bold uppercase tracking-widest text-muted-foreground backdrop-blur-xl shadow-2xl transition-all hover:bg-muted/50 hover:text-foreground disabled:opacity-30 disabled:hover:bg-background/60"
+          >
+            {isCommitting ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <UploadCloud className="mr-2 h-4 w-4" />
+            )}
+            {isCommitting ? "Vaulting..." : "Commit Batch"}
+          </Button>
+        </div>
       </header>
 
-      <ScrollArea className="flex-1">
-        <div className="max-w-5xl mx-auto space-y-8">
-          <label className="flex flex-col items-center justify-center w-full p-16 border-2 border-dashed rounded-xl cursor-pointer hover:bg-muted/30 hover:border-primary/50 transition-all group">
-            <Plus className="w-10 h-10 text-muted-foreground group-hover:text-primary mb-3" />
-            <p className="text-[11px] font-mono uppercase font-bold tracking-widest text-muted-foreground group-hover:text-foreground">
-              {isParsing ? "Analyzing Files..." : "Tap to select assets"}
+      {/* --- MOBILE BOTTOM NAV (Thumb Navigation) --- */}
+      <div className="fixed bottom-6 inset-x-0 z-50 flex justify-center pointer-events-none md:hidden transition-all duration-500">
+        <div
+          className={`pointer-events-auto transition-transform ${stagedFiles.length > 0 ? "translate-y-0" : "translate-y-24 opacity-0"}`}
+        >
+          <Button
+            onClick={handleCommitBatch}
+            disabled={!isReadyToCommit || isCommitting}
+            size="lg"
+            variant="outline"
+            className="h-14 rounded-full border-border/50 bg-background/80 px-8 text-[11px] font-bold uppercase tracking-widest text-muted-foreground backdrop-blur-2xl shadow-2xl transition-all hover:scale-105 hover:bg-muted/80 hover:text-foreground active:scale-95 disabled:opacity-30 disabled:hover:scale-100 disabled:hover:bg-background/80"
+          >
+            {isCommitting ? (
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+            ) : (
+              <UploadCloud className="mr-2 h-5 w-5" />
+            )}
+            {isCommitting ? "Vaulting..." : "Commit Batch"}
+          </Button>
+        </div>
+      </div>
+
+      {/* --- MAIN CONTENT STAGE --- */}
+      {/* pt-32 clears the top floating nav, pb-32 clears the bottom floating pill on mobile */}
+      <main className="mx-auto max-w-5xl px-4 pt-32 pb-32 md:pb-12 md:px-8">
+        <div className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700 ease-out">
+          {/* Dropzone */}
+          <label className="flex flex-col items-center justify-center w-full p-12 md:p-20 border border-dashed border-border/60 rounded-3xl cursor-pointer bg-muted/5 hover:bg-muted/10 transition-colors group">
+            <div className="h-16 w-16 rounded-2xl bg-background/50 border border-border/50 shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500 ease-out">
+              <Plus className="w-6 h-6 text-muted-foreground group-hover:text-foreground transition-colors" />
+            </div>
+            <p className="text-xs font-mono uppercase font-bold tracking-widest text-muted-foreground group-hover:text-foreground transition-colors text-center">
+              {isParsing ? "Analyzing Files..." : "Tap to stage assets"}
             </p>
             <input
               type="file"
@@ -360,7 +405,8 @@ export default function UploadBatchPage() {
             />
           </label>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Staging Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {stagedFiles.map((file) => (
               <StagedAssetCard
                 key={file.id}
@@ -377,7 +423,7 @@ export default function UploadBatchPage() {
             ))}
           </div>
         </div>
-      </ScrollArea>
+      </main>
     </div>
   );
 }
