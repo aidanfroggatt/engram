@@ -1,4 +1,6 @@
 import { ClerkProvider } from "@clerk/nextjs";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { ReactNode } from "react";
@@ -29,22 +31,26 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: ReactNode }>) {
   return (
-    <ClerkProvider>
-      <html lang="en" suppressHydrationWarning>
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} bg-background text-foreground antialiased`}
-        >
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem        
-            disableTransitionOnChange
+    <>
+      <Analytics />
+      <SpeedInsights />
+      <ClerkProvider>
+        <html lang="en" suppressHydrationWarning>
+          <body
+            className={`${geistSans.variable} ${geistMono.variable} bg-background text-foreground antialiased`}
           >
-            {children}
-            <Toaster theme="system" richColors />
-          </ThemeProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              {children}
+              <Toaster theme="system" richColors />
+            </ThemeProvider>
+          </body>
+        </html>
+      </ClerkProvider>
+    </>
   );
 }

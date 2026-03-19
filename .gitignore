@@ -78,3 +78,9 @@ yarn-error.log*
 
 .DS_Store
 *.pem
+
+# -----------------------------
+# User Data & IG Migration
+# -----------------------------
+apps/api/scripts/ig_migrate/ig_data/
+apps/api/scripts/ig_migrate/completed.json
