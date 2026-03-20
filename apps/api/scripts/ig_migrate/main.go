@@ -8,8 +8,6 @@ import (
 	"mime"
 	"os"
 	"path/filepath"
-	"regexp"
-	"strconv"
 	"strings"
 	"time"
 
@@ -22,36 +20,52 @@ import (
 	"engram/api/config"
 	"engram/api/ent"
 
-	// Ensure your postgres driver is loaded
 	_ "github.com/lib/pq"
 )
 
 // --- Configuration Constants ---
 const (
-	TargetUserID   = "YOUR_CLERK_USER_ID" // TODO: Replace with your actual Clerk ID
-	ExportBasePath = "./scripts/ig_migrate/ig_data/media" // Pointing directly to the media folder
+	TargetUserID   = "CLERK_USER_ID" // TODO: Insert your Clerk ID
+	ExportBasePath = "./scripts/ig_migrate/ig_data"
+	ManifestPath   = "./scripts/ig_migrate/ig_data/posts_1.json"
 	CompletedLog   = "./scripts/ig_migrate/completed.json"
 )
 
-// Allowed media extensions to prevent uploading random IG system files
-var allowedExtensions = map[string]bool{
-	".jpg": true, ".jpeg": true, ".png": true, ".webp": true,
-	".mp4": true, ".mov": true,
+// --- JSON Struct Definition ---
+// This perfectly maps to the structure of your posts_1.json file
+type IGExport []struct {
+	Media []struct {
+		URI               string `json:"uri"`
+		CreationTimestamp int64  `json:"creation_timestamp"`
+		MediaMetadata     struct {
+			PhotoMetadata struct {
+				ExifData []struct {
+					Latitude  float64 `json:"latitude"`
+					Longitude float64 `json:"longitude"`
+				} `json:"exif_data"`
+			} `json:"photo_metadata"`
+			VideoMetadata struct {
+				ExifData []struct {
+					Latitude  float64 `json:"latitude"`
+					Longitude float64 `json:"longitude"`
+				} `json:"exif_data"`
+			} `json:"video_metadata"`
+		} `json:"media_metadata"`
+	} `json:"media"`
 }
 
 func main() {
-	// 1. Load Configuration
 	cfg := config.Load()
-	fmt.Println("Initializing File-System Migration Engine...")
+	fmt.Println("Initializing JSON-Driven Migration Engine...")
 
-	// 2. Initialize Ent Database Client
+	// 1. Initialize Ent Database Client
 	db, err := ent.Open("postgres", cfg.DatabaseURL)
 	if err != nil {
 		log.Fatalf("Failed to connect to Neon: %v", err)
 	}
 	defer db.Close()
 
-	// 3. Initialize B2 S3 Client
+	// 2. Initialize B2 S3 Client
 	region := "us-east-1"
 	if parts := strings.Split(cfg.B2Endpoint, "."); len(parts) > 1 {
 		region = parts[1]
@@ -68,81 +82,80 @@ func main() {
 		o.UsePathStyle = true
 	})
 
-	// 4. Load Resumability State
+	// 3. Load Resumability State
 	completed := make(map[string]bool)
 	if data, err := os.ReadFile(CompletedLog); err == nil {
 		json.Unmarshal(data, &completed)
 	}
 	fmt.Printf("Loaded %d previously completed assets.\n", len(completed))
 
-	// 5. Define target directories to scan
-	targetDirs := []string{
-		filepath.Join(ExportBasePath, "posts"),
-		filepath.Join(ExportBasePath, "archived_posts"),
+	// 4. Read and Parse the JSON Manifest
+	fileData, err := os.ReadFile(ManifestPath)
+	if err != nil {
+		log.Fatalf("Failed to read JSON manifest at %s: %v", ManifestPath, err)
+	}
+
+	var exportData IGExport
+	if err := json.Unmarshal(fileData, &exportData); err != nil {
+		log.Fatalf("Failed to parse JSON manifest: %v", err)
 	}
 
 	successCount := 0
 	ctx := context.Background()
 
-	// Regex to match folders like "202208"
-	dateFolderRegex := regexp.MustCompile(`^(\d{4})(\d{2})$`)
+	// 5. Iterate through the JSON data
+	for _, postGroup := range exportData {
+		for _, media := range postGroup.Media {
 
-	// 6. Execute Recursive Directory Walk
-	for _, targetDir := range targetDirs {
-		err = filepath.WalkDir(targetDir, func(path string, d os.DirEntry, err error) error {
-			if err != nil {
-				return nil // Skip unreadable paths
-			}
-			if d.IsDir() {
-				return nil // Skip directories themselves
+			// Skip if already processed
+			if completed[media.URI] {
+				continue
 			}
 
-			ext := strings.ToLower(filepath.Ext(path))
-			if !allowedExtensions[ext] {
-				return nil // Skip non-media files
-			}
+			// Generate exact timestamp
+			captureTime := time.Unix(media.CreationTimestamp, 0)
 
-			// Generate a consistent relative URI for the resumability map
-			relPath, _ := filepath.Rel(ExportBasePath, path)
-			if completed[relPath] {
-				return nil // Skip if already vaulted
-			}
-
-			// --- Extract Date from Folder Name ---
-			// Instagram puts files in folders like "202208". We grab the parent folder name.
-			parentFolder := filepath.Base(filepath.Dir(path))
+			// Extract precise GPS coordinates (if they exist)
+			var lat, lng *float64
 			
-			var captureTime time.Time
-			matches := dateFolderRegex.FindStringSubmatch(parentFolder)
+			// Check Photo Exif
+			if len(media.MediaMetadata.PhotoMetadata.ExifData) > 0 {
+				exif := media.MediaMetadata.PhotoMetadata.ExifData[0]
+				if exif.Latitude != 0 && exif.Longitude != 0 {
+					l1, l2 := exif.Latitude, exif.Longitude
+					lat, lng = &l1, &l2
+				}
+			}
 			
-			if len(matches) == 3 {
-				year, _ := strconv.Atoi(matches[1])
-				month, _ := strconv.Atoi(matches[2])
-				// Default to the 15th of the month at 12:00 PM so they sort cleanly
-				captureTime = time.Date(year, time.Month(month), 15, 12, 0, 0, 0, time.UTC)
-			} else {
-				// Fallback if the folder name isn't a date (use file mod time)
-				info, _ := d.Info()
-				captureTime = info.ModTime()
+			// Check Video Exif
+			if len(media.MediaMetadata.VideoMetadata.ExifData) > 0 {
+				exif := media.MediaMetadata.VideoMetadata.ExifData[0]
+				if exif.Latitude != 0 && exif.Longitude != 0 {
+					l1, l2 := exif.Latitude, exif.Longitude
+					lat, lng = &l1, &l2
+				}
 			}
 
-			// Determine MIME Type
+			// Find physical file using the URI provided in the JSON
+			physicalPath := filepath.Join(ExportBasePath, media.URI)
+			
+			ext := strings.ToLower(filepath.Ext(physicalPath))
 			mimeType := mime.TypeByExtension(ext)
 			if mimeType == "" {
 				mimeType = "application/octet-stream"
 			}
 
-			file, err := os.Open(path)
+			file, err := os.Open(physicalPath)
 			if err != nil {
-				log.Printf("[WARN] Could not open file: %s\n", path)
-				return nil
+				// We don't fatal crash here, because sometimes IG JSON lists files that failed to download
+				log.Printf("[WARN] Found in JSON but missing on disk: %s\n", physicalPath)
+				continue
 			}
-			defer file.Close()
 
 			// Generate new B2 FileKey
 			fileKey := fmt.Sprintf("%s/ig-migration/%s%s", TargetUserID, uuid.New().String(), ext)
 
-			fmt.Printf("Vaulting [%s] %s -> B2... ", captureTime.Format("2006-01"), d.Name())
+			fmt.Printf("Vaulting [%s] -> B2... ", captureTime.Format(time.RFC3339))
 
 			// --- A. Upload to B2 ---
 			_, err = s3Client.PutObject(ctx, &s3.PutObjectInput{
@@ -151,47 +164,43 @@ func main() {
 				Body:        file,
 				ContentType: aws.String(mimeType),
 			})
+			file.Close() // Close immediately after upload
 
 			if err != nil {
-				log.Printf("\n[ERROR] B2 Upload failed for %s: %v\n", relPath, err)
-				return nil
+				log.Printf("\n[ERROR] B2 Upload failed for %s: %v\n", media.URI, err)
+				continue
 			}
 
 			// --- B. Commit to Neon DB via Ent ---
-			// Note: We don't have lat/lng without the JSON, so we omit those fields.
 			_, err = db.MediaAsset.Create().
 				SetUserID(TargetUserID).
 				SetFileKey(fileKey).
 				SetMimeType(mimeType).
 				SetCaptureTime(captureTime).
+				SetNillableLatitude(lat).
+				SetNillableLongitude(lng).
 				Save(ctx)
 
 			if err != nil {
-				log.Printf("\n[ERROR] DB Commit failed for %s: %v\n", relPath, err)
-				return nil
+				log.Printf("\n[ERROR] DB Commit failed for %s: %v\n", media.URI, err)
+				continue
 			}
 
 			// --- C. Mark Completed ---
-			completed[relPath] = true
+			completed[media.URI] = true
 			successCount++
 			fmt.Println("Success")
 
 			// Save progress frequently
-			if successCount%10 == 0 {
+			if successCount%25 == 0 {
 				saveProgress(completed)
 			}
-
-			return nil
-		})
-
-		if err != nil {
-			log.Printf("Error walking directory %s: %v", targetDir, err)
 		}
 	}
 
 	// Final progress save
 	saveProgress(completed)
-	fmt.Printf("\nMigration Complete! Successfully vaulted %d new assets.\n", successCount)
+	fmt.Printf("\nMigration Complete! Successfully vaulted %d new assets with precise metadata.\n", successCount)
 }
 
 func saveProgress(completed map[string]bool) {

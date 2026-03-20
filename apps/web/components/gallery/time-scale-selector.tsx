@@ -8,7 +8,7 @@ interface TimeScaleSelectorProps {
 }
 
 export function TimeScaleSelector({ value, onChange }: TimeScaleSelectorProps) {
-  const scales: TimeScale[] = ["day", "week", "month", "year"];
+  const scales: TimeScale[] = ["week", "month", "year"];
 
   return (
     <div className="inline-flex h-auto bg-muted/40 p-1 backdrop-blur-md border border-border/50 rounded-xl shadow-sm">

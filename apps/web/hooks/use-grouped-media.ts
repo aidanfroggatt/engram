@@ -1,14 +1,8 @@
 import { MediaAsset } from "@/types/media";
-import {
-  format,
-  startOfDay,
-  startOfMonth,
-  startOfWeek,
-  startOfYear,
-} from "date-fns";
+import { format, startOfMonth, startOfWeek, startOfYear } from "date-fns";
 import { useMemo } from "react";
 
-export type TimeScale = "day" | "week" | "month" | "year";
+export type TimeScale = "week" | "month" | "year";
 
 export function useGroupedMedia(media: MediaAsset[], timeScale: TimeScale) {
   return useMemo(() => {
@@ -24,9 +18,6 @@ export function useGroupedMedia(media: MediaAsset[], timeScale: TimeScale) {
       const date = new Date(item.captureTime);
       let key = "";
       switch (timeScale) {
-        case "day":
-          key = format(startOfDay(date), "MMM dd, yyyy");
-          break;
         case "week":
           key = `Week of ${format(startOfWeek(date, { weekStartsOn: 1 }), "MMM dd")}`;
           break;
