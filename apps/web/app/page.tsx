@@ -1,168 +1,223 @@
 "use client";
 
 import { UserButton } from "@clerk/nextjs";
-import { DatabaseBackup, Loader2, Plus } from "lucide-react";
+import { DatabaseBackup, Loader2, MapPin, Plus } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
 import { Logo } from "@/components/brand/logo";
-import { AssetDialog } from "@/components/gallery/asset-dialog";
-import { TimeScaleSelector } from "@/components/gallery/time-scale-selector";
+import { LightboxRoot } from "@/components/lightbox/lightbox-root";
+import { MediaRenderer } from "@/components/media-renderer";
+
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+
 import { TimeScale, useGroupedMedia } from "@/hooks/use-grouped-media";
 import { useVaultGallery } from "@/hooks/use-vault-gallery";
+import { MediaAsset } from "@/types/media";
 
 export default function GalleryPage() {
-  // 1. Destructure the new pagination tools
-  const { media, isLoading, isFetchingNextPage, hasNextPage, loadMore } =
-    useVaultGallery();
+  const {
+    media,
+    isLoading,
+    isFetchingNextPage,
+    hasNextPage,
+    loadMore,
+    refetch,
+  } = useVaultGallery();
+
   const [timeScale, setTimeScale] = useState<TimeScale>("week");
   const groupedMedia = useGroupedMedia(media, timeScale);
+  const [activeAsset, setActiveAsset] = useState<MediaAsset | null>(null);
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-background">
-        <div className="mb-6 animate-pulse scale-125">
-          <Logo showText={false} iconSize={24} />
-        </div>
-        <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground animate-pulse">
+      <div className="flex min-h-screen flex-col items-center justify-center">
+        <Logo showText={false} iconSize={32} />
+        <p className="mt-4 animate-pulse font-mono text-xs uppercase tracking-widest text-muted-foreground">
           Establishing Connection...
-        </div>
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground selection:bg-primary selection:text-primary-foreground">
-      {/* --- DESKTOP & MOBILE TOP NAV (Info & Auth) --- */}
-      <header className="fixed top-4 md:top-6 inset-x-4 md:inset-x-8 z-50 flex items-start justify-between pointer-events-none">
-        {/* Left: Branding & Status Pill */}
-        <div className="pointer-events-auto flex items-center gap-3 rounded-2xl border border-border/50 bg-background/60 pr-5 backdrop-blur-xl shadow-2xl transition-all hover:bg-background/80">
-          <div className="scale-90 origin-left">
-            <Logo showText={false} iconSize={18} />
+    <div className="min-h-screen flex flex-col">
+      {/* --- TOP NAVIGATION --- */}
+      <header className="fixed top-0 z-40 w-full border-b bg-background/95 backdrop-blur-md">
+        <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between px-4 md:px-8">
+          <div className="flex items-center gap-4">
+            <Logo showText={false} iconSize={20} />
+            <div className="flex flex-col">
+              <span className="text-xs font-bold uppercase tracking-tighter">
+                Engram
+              </span>
+              <Badge
+                variant="outline"
+                className="h-4 px-1.5 font-mono text-[8px] uppercase"
+              >
+                {media.length} Nodes
+              </Badge>
+            </div>
           </div>
-          <div className="flex flex-col py-2">
-            <h1 className="text-[11px] font-black uppercase tracking-widest leading-none text-foreground">
-              Engram
-            </h1>
-            <p className="mt-1 text-[8px] font-mono text-muted-foreground uppercase tracking-widest">
-              {media.length} Nodes Active
-            </p>
-          </div>
-        </div>
 
-        {/* Right: Actions */}
-        <div className="pointer-events-auto flex items-center gap-3">
-          {/* Desktop Only: Floating Add Media Button */}
-          <Link href="/upload" className="hidden md:block">
+          <div className="flex items-center gap-3">
             <Button
-              size="sm"
               variant="outline"
-              className="h-12 rounded-2xl border-border/50 bg-background/60 px-5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground backdrop-blur-xl shadow-2xl transition-all hover:bg-muted/50 hover:text-foreground"
+              size="sm"
+              asChild
+              className="hidden md:flex"
             >
-              <Plus className="mr-2 h-4 w-4" /> Add Media
+              <Link href="/upload">
+                <Plus className="mr-2 h-4 w-4" /> Add Media
+              </Link>
             </Button>
-          </Link>
-
-          {/* User Profile Pill */}
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-border/50 bg-background/60 backdrop-blur-xl shadow-2xl transition-all hover:bg-background/80">
             <UserButton
               appearance={{
-                elements: { userButtonAvatarBox: "h-8 w-8 rounded-xl" },
+                elements: { userButtonAvatarBox: "h-8 w-8" },
               }}
             />
           </div>
         </div>
       </header>
 
-      {/* --- MOBILE BOTTOM NAV (Thumb Navigation) --- */}
-      <div className="fixed bottom-6 inset-x-0 z-50 flex justify-center pointer-events-none md:hidden">
-        <Link href="/upload" className="pointer-events-auto">
-          <Button
-            size="lg"
-            variant="outline"
-            className="h-14 rounded-full border-border/50 bg-background/80 px-8 text-[11px] font-bold uppercase tracking-widest text-muted-foreground backdrop-blur-2xl shadow-2xl transition-all hover:scale-105 hover:bg-muted/80 hover:text-foreground active:scale-95"
-          >
-            <Plus className="mr-2 h-5 w-5" /> Upload Asset
-          </Button>
-        </Link>
+      {/* --- MOBILE ACTION BAR --- */}
+      <div className="fixed bottom-6 inset-x-0 z-40 flex justify-center md:hidden pointer-events-none">
+        <Button
+          size="lg"
+          asChild
+          className="rounded-full shadow-lg pointer-events-auto"
+        >
+          <Link href="/upload">
+            <Plus className="mr-2 h-5 w-5" /> Upload
+          </Link>
+        </Button>
       </div>
 
-      {/* --- MAIN CONTENT STAGE --- */}
-      <main className="mx-auto max-w-[1600px] px-4 pt-32 pb-32 md:pb-12 md:px-8">
-        {/* Scale Controls */}
-        <div className="mb-12 flex justify-start animate-in fade-in slide-in-from-top-4 duration-1000">
-          <TimeScaleSelector value={timeScale} onChange={setTimeScale} />
+      {/* --- GALLERY STAGE --- */}
+      <main className="mx-auto w-full max-w-[1600px] flex-1 px-4 pt-24 pb-24 md:px-8">
+        {/* TIME SCALE SELECTOR (Integrated)
+            Uses Shadcn ToggleGroup for semantic "single-choice" selection.
+        */}
+        <div className="mb-10">
+          <ToggleGroup
+            type="single"
+            value={timeScale}
+            onValueChange={(val) => val && setTimeScale(val as TimeScale)}
+            className="justify-start"
+          >
+            <ToggleGroupItem
+              value="week"
+              aria-label="Group by week"
+              className="font-mono text-[10px] uppercase tracking-widest px-4"
+            >
+              Week
+            </ToggleGroupItem>
+            <ToggleGroupItem
+              value="month"
+              aria-label="Group by month"
+              className="font-mono text-[10px] uppercase tracking-widest px-4"
+            >
+              Month
+            </ToggleGroupItem>
+            <ToggleGroupItem
+              value="year"
+              aria-label="Group by year"
+              className="font-mono text-[10px] uppercase tracking-widest px-4"
+            >
+              Year
+            </ToggleGroupItem>
+          </ToggleGroup>
         </div>
 
-        {/* Dynamic Feed */}
         {media.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-border/50 py-32 bg-muted/5 transition-colors hover:bg-muted/10">
-            <DatabaseBackup className="mb-6 h-12 w-12 text-muted-foreground/30" />
-            <p className="text-xs font-mono uppercase tracking-[0.3em] text-muted-foreground mb-8 text-center">
-              Vault Partition Empty
-            </p>
-            {/* Kept this button for desktop empty states */}
-            <Link href="/upload" className="hidden md:block">
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-xl border-border/50 bg-background/50 text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground hover:bg-muted"
-              >
-                Initialize Batch
+          <Card className="flex flex-col items-center justify-center border-dashed py-32 text-center">
+            <CardContent>
+              <DatabaseBackup className="mb-4 h-12 w-12 text-muted-foreground/20 mx-auto" />
+              <p className="text-sm font-medium text-muted-foreground">
+                Vault Partition Empty
+              </p>
+              <Button variant="link" asChild className="mt-2">
+                <Link href="/upload">Initialize first batch</Link>
               </Button>
-            </Link>
-          </div>
+            </CardContent>
+          </Card>
         ) : (
-          <div className="space-y-16">
+          <div className="space-y-12">
             {Object.entries(groupedMedia).map(([label, assets]) => (
-              <section
-                key={label}
-                className="animate-in fade-in slide-in-from-bottom-8 duration-700 ease-out"
-              >
-                {/* Sticky Group Header */}
-                <div className="flex items-center gap-4 mb-6 sticky top-24 bg-background/90 backdrop-blur-xl py-4 z-40 border-b border-border/30 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.5)]">
-                  <h2 className="text-sm font-black uppercase tracking-widest text-foreground pl-2">
+              <section key={label}>
+                {/* Sticky Section Header */}
+                <div className="sticky top-16 z-30 bg-background/95 py-4 flex items-center gap-4">
+                  <h2 className="text-sm font-bold uppercase tracking-widest">
                     {label}
                   </h2>
-                  <div className="h-px flex-1 bg-linear-to-r from-border/50 to-transparent" />
-                  <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest bg-muted/30 border border-border/30 px-3 py-1.5 rounded-lg mr-2">
-                    {assets.length} items
-                  </span>
+                  <Separator className="flex-1" />
+                  <Badge variant="secondary" className="font-mono text-[10px]">
+                    {assets.length}
+                  </Badge>
                 </div>
 
-                {/* Spatial Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
+                {/* The Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3 mt-4">
                   {assets.map((asset, i) => (
-                    <AssetDialog
+                    <button
                       key={asset.id}
-                      asset={asset}
-                      priority={i < 8}
-                    />
+                      onClick={() => setActiveAsset(asset)}
+                      aria-label={`Inspect asset from ${label}`}
+                      aria-haspopup="dialog"
+                      className="group relative aspect-square overflow-hidden rounded-md border bg-muted transition-colors hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                    >
+                      <MediaRenderer
+                        asset={asset}
+                        isThumbnail={true}
+                        priority={i < 8}
+                      />
+                      {asset.latitude && (
+                        <div className="absolute right-2 top-2">
+                          <MapPin className="h-3 w-3 text-primary opacity-0 transition-opacity group-hover:opacity-100" />
+                        </div>
+                      )}
+                    </button>
                   ))}
                 </div>
               </section>
             ))}
 
-            {/* --- PAGINATION CONTROL --- */}
+            {/* Pagination */}
             {hasNextPage && (
-              <div className="flex justify-center pt-8 pb-16 animate-in fade-in duration-500">
+              <div className="flex justify-center py-12">
                 <Button
+                  variant="secondary"
                   onClick={loadMore}
                   disabled={isFetchingNextPage}
-                  variant="outline"
-                  className="h-12 rounded-2xl border-border/50 bg-muted/20 px-8 text-xs font-bold uppercase tracking-widest text-muted-foreground backdrop-blur-xl transition-all hover:bg-muted/50 hover:text-foreground disabled:opacity-50"
                 >
-                  {isFetchingNextPage ? (
+                  {isFetchingNextPage && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : null}
-                  {isFetchingNextPage ? "Decrypting..." : "Load Older Archives"}
+                  )}
+                  {isFetchingNextPage
+                    ? "Decrypting Nodes..."
+                    : "Load Older Archives"}
                 </Button>
               </div>
             )}
           </div>
         )}
       </main>
+
+      {/* --- LIGHTBOX OVERLAY --- */}
+      {activeAsset && (
+        <LightboxRoot
+          asset={activeAsset}
+          onClose={() => setActiveAsset(null)}
+          onDeleteSuccess={() => {
+            setActiveAsset(null);
+            refetch();
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -14,5 +14,8 @@ func mountMediaRoutes(mux *http.ServeMux, auth *middleware.AuthMiddleware, serve
 	// Upload Flow
 	mux.Handle("POST /api/upload/url", auth.RequireAuth(http.HandlerFunc(server.HandleGetUploadURL)))
 	mux.Handle("POST /api/upload/commit", auth.RequireAuth(http.HandlerFunc(server.HandleCommitMedia)))
+	
+	// Deletion Route
+	mux.Handle("DELETE /api/media/{id}", auth.RequireAuth(http.HandlerFunc(server.HandleDeleteMedia)))
 
 }

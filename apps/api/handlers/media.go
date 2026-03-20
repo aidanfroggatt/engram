@@ -54,6 +54,7 @@ type CommitMediaRequest struct {
 // --- Server Definition ---
 
 type MediaServer struct {
+	s3Client      *s3.Client
 	presignClient *s3.PresignClient
 	bucketName    string
 	db            *ent.Client
@@ -74,12 +75,13 @@ func NewMediaServer(cfg *config.Config, db *ent.Client) (*MediaServer, error) {
 		return nil, err
 	}
 
-	client := s3.NewFromConfig(awsCfg, func(o *s3.Options) {
+client := s3.NewFromConfig(awsCfg, func(o *s3.Options) {
 		o.BaseEndpoint = aws.String(cfg.B2Endpoint)
 		o.UsePathStyle = true
 	})
 
 	return &MediaServer{
+		s3Client:      client,
 		presignClient: s3.NewPresignClient(client),
 		bucketName:    cfg.B2BucketName,
 		db:            db,
@@ -256,4 +258,52 @@ func (s *MediaServer) HandleCommitMedia(w http.ResponseWriter, r *http.Request) 
 		"id":      asset.ID.String(),
 		"success": true,
 	})
+}
+
+// HandleDeleteMedia removes the asset from both Neon DB and B2 Storage
+func (s *MediaServer) HandleDeleteMedia(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	userID, ok := ctx.Value(middleware.UserIDKey).(string)
+	if !ok {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	// In Go 1.22+, you extract wildcards using r.PathValue
+	assetIDStr := r.PathValue("id")
+	assetID, err := uuid.Parse(assetIDStr)
+	if err != nil {
+		http.Error(w, "Invalid asset ID", http.StatusBadRequest)
+		return
+	}
+
+	// 1. Fetch the asset first to verify ownership and get the B2 FileKey
+	asset, err := s.db.MediaAsset.Query().
+		Where(mediaasset.IDEQ(assetID), mediaasset.UserIDEQ(userID)).
+		Only(ctx)
+		
+	if err != nil {
+		http.Error(w, "Asset not found or unauthorized", http.StatusNotFound)
+		return
+	}
+
+	// 2. Delete the physical file from B2 Storage
+	_, err = s.s3Client.DeleteObject(ctx, &s3.DeleteObjectInput{
+		Bucket: aws.String(s.bucketName),
+		Key:    aws.String(asset.FileKey),
+	})
+	if err != nil {
+		http.Error(w, "Storage deletion failed", http.StatusInternalServerError)
+		return
+	}
+
+	// 3. Delete the record from Neon DB
+	err = s.db.MediaAsset.DeleteOneID(assetID).Exec(ctx)
+	if err != nil {
+		http.Error(w, "Database deletion failed", http.StatusInternalServerError)
+		return
+	}
+
+	// 4. Return 204 No Content
+	w.WriteHeader(http.StatusNoContent)
 }
