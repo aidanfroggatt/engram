@@ -13,7 +13,13 @@ import {
 import { MediaAsset } from "@/types/media";
 import { MediaRenderer } from "./media-renderer";
 
-export function AssetDialog({ asset }: { asset: MediaAsset }) {
+export function AssetDialog({
+  asset,
+  priority = false,
+}: {
+  asset: MediaAsset;
+  priority?: boolean;
+}) {
   const captureDate = new Date(asset.captureTime);
 
   return (
@@ -23,7 +29,8 @@ export function AssetDialog({ asset }: { asset: MediaAsset }) {
           className="group relative aspect-square w-full overflow-hidden rounded-xl bg-muted shadow-sm ring-offset-background transition-all hover:ring-2 hover:ring-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           aria-label="View asset details"
         >
-          <MediaRenderer asset={asset} isThumbnail={true} />
+          <MediaRenderer asset={asset} isThumbnail={true} priority={priority} />
+
           {asset.latitude && (
             <div className="absolute right-2 top-2 rounded-md bg-background/70 p-1.5 backdrop-blur-md border border-border/50 shadow-sm transition-opacity group-hover:opacity-100">
               <MapPin className="h-3 w-3 text-foreground" />
@@ -38,16 +45,17 @@ export function AssetDialog({ asset }: { asset: MediaAsset }) {
         </DialogHeader>
 
         {/* Responsive Container: Stacks on mobile, Side-by-side on desktop */}
-        <div className="flex flex-col md:flex-row h-[90vh] md:h-[75vh] max-h-[800px]">
+        <div className="flex flex-col md:flex-row h-[90vh] md:h-[75vh] max-h-200">
           {/* Media Display Area */}
-          <div className="relative w-full h-[45vh] md:h-auto md:flex-[7] bg-black flex items-center justify-center border-b md:border-b-0 md:border-r border-border/50 shrink-0">
+          <div className="relative w-full h-[45vh] md:h-auto md:flex-7 bg-black flex items-center justify-center border-b md:border-b-0 md:border-r border-border/50 shrink-0">
             <div className="relative h-full w-full">
               <MediaRenderer asset={asset} isThumbnail={false} />
             </div>
           </div>
 
           {/* Metadata Sidebar */}
-          <div className="flex-1 flex flex-col bg-muted/10 md:flex-[3] overflow-hidden">
+          <div className="flex-1 flex flex-col bg-muted/10 md:flex-3 overflow-hidden">
+            {/* ... Sidebar code remains exactly the same ... */}
             <div className="p-6 md:p-8 flex-1 overflow-y-auto">
               <div className="space-y-1 border-b border-border/50 pb-6 mb-6 mt-2 md:mt-0">
                 <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground">

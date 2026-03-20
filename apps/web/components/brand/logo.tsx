@@ -18,15 +18,15 @@ export function Logo({
       <div className="flex items-center justify-center rounded-xl border border-border bg-card p-2 shadow-sm transition-transform">
         <div className="relative flex items-center justify-center">
           {/* 1. The Ambient Glow Layer */}
-          {/* This sits behind the real logo, blurred and pulsing, acting as a shape-tracing light source */}
           <Image
             src="/favicon.ico"
-            alt="" // Decorative, hide from screen readers
+            alt=""
             width={iconSize}
             height={iconSize}
             className="absolute inset-0 animate-pulse opacity-60 blur-[6px] mix-blend-screen"
             unoptimized
             aria-hidden="true"
+            priority // <-- Added this
           />
 
           {/* 2. The Sharp Foreground Logo */}
@@ -37,6 +37,7 @@ export function Logo({
             height={iconSize}
             className="relative z-10 drop-shadow-md"
             unoptimized
+            priority // <-- Added this
           />
         </div>
       </div>

@@ -7,11 +7,13 @@ import Image from "next/image";
 interface MediaRendererProps {
   asset: MediaAsset;
   isThumbnail?: boolean;
+  priority?: boolean;
 }
 
 export function MediaRenderer({
   asset,
   isThumbnail = false,
+  priority = false,
 }: MediaRendererProps) {
   const isVideo = asset.mimeType.startsWith("video/");
   const altText = `Media asset captured on ${new Date(asset.captureTime).toLocaleDateString()}`;
@@ -24,6 +26,7 @@ export function MediaRenderer({
           className="h-full w-full object-cover"
           controls={!isThumbnail}
           autoPlay={!isThumbnail}
+          muted={!isThumbnail}
           preload="metadata"
           playsInline
           aria-label={altText}
@@ -46,6 +49,8 @@ export function MediaRenderer({
         alt={altText}
         fill
         unoptimized
+        sizes={isThumbnail ? "(max-width: 768px) 50vw, 33vw" : "100vw"}
+        priority={priority}
         className={`transition-transform duration-700 ease-out ${
           isThumbnail ? "object-cover group-hover:scale-105" : "object-contain"
         }`}

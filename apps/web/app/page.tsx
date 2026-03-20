@@ -87,8 +87,7 @@ export default function GalleryPage() {
       </div>
 
       {/* --- MAIN CONTENT STAGE --- */}
-      {/* Added pt-32 to clear the floating top nav, and pb-32 on mobile to clear the bottom nav */}
-      <main className="mx-auto max-w-[1600px] px-4 pt-32 pb-32 md:pb-12 md:px-8">
+      <main className="mx-auto max-w-400 px-4 pt-32 pb-32 md:pb-12 md:px-8">
         {/* Scale Controls */}
         <div className="mb-12 flex justify-start animate-in fade-in slide-in-from-top-4 duration-1000">
           <TimeScaleSelector value={timeScale} onChange={setTimeScale} />
@@ -124,7 +123,7 @@ export default function GalleryPage() {
                   <h2 className="text-sm font-black uppercase tracking-widest text-foreground pl-2">
                     {label}
                   </h2>
-                  <div className="h-px flex-1 bg-gradient-to-r from-border/50 to-transparent" />
+                  <div className="h-px flex-1 bg-linear-to-r from-border/50 to-transparent" />
                   <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest bg-muted/30 border border-border/30 px-3 py-1.5 rounded-lg mr-2">
                     {assets.length} items
                   </span>
@@ -132,8 +131,12 @@ export default function GalleryPage() {
 
                 {/* Spatial Grid */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
-                  {assets.map((asset) => (
-                    <AssetDialog key={asset.id} asset={asset} />
+                  {assets.map((asset, i) => (
+                    <AssetDialog
+                      key={asset.id}
+                      asset={asset}
+                      priority={i < 8}
+                    />
                   ))}
                 </div>
               </section>
