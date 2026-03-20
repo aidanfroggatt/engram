@@ -1,7 +1,7 @@
 "use client";
 
 import { UserButton } from "@clerk/nextjs";
-import { DatabaseBackup, Plus } from "lucide-react";
+import { DatabaseBackup, Loader2, Plus } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -13,7 +13,9 @@ import { TimeScale, useGroupedMedia } from "@/hooks/use-grouped-media";
 import { useVaultGallery } from "@/hooks/use-vault-gallery";
 
 export default function GalleryPage() {
-  const { media, isLoading } = useVaultGallery();
+  // 1. Destructure the new pagination tools
+  const { media, isLoading, isFetchingNextPage, hasNextPage, loadMore } =
+    useVaultGallery();
   const [timeScale, setTimeScale] = useState<TimeScale>("week");
   const groupedMedia = useGroupedMedia(media, timeScale);
 
@@ -87,7 +89,7 @@ export default function GalleryPage() {
       </div>
 
       {/* --- MAIN CONTENT STAGE --- */}
-      <main className="mx-auto max-w-400 px-4 pt-32 pb-32 md:pb-12 md:px-8">
+      <main className="mx-auto max-w-[1600px] px-4 pt-32 pb-32 md:pb-12 md:px-8">
         {/* Scale Controls */}
         <div className="mb-12 flex justify-start animate-in fade-in slide-in-from-top-4 duration-1000">
           <TimeScaleSelector value={timeScale} onChange={setTimeScale} />
@@ -141,6 +143,23 @@ export default function GalleryPage() {
                 </div>
               </section>
             ))}
+
+            {/* --- PAGINATION CONTROL --- */}
+            {hasNextPage && (
+              <div className="flex justify-center pt-8 pb-16 animate-in fade-in duration-500">
+                <Button
+                  onClick={loadMore}
+                  disabled={isFetchingNextPage}
+                  variant="outline"
+                  className="h-12 rounded-2xl border-border/50 bg-muted/20 px-8 text-xs font-bold uppercase tracking-widest text-muted-foreground backdrop-blur-xl transition-all hover:bg-muted/50 hover:text-foreground disabled:opacity-50"
+                >
+                  {isFetchingNextPage ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : null}
+                  {isFetchingNextPage ? "Decrypting..." : "Load Older Archives"}
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </main>

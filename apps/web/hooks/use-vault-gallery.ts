@@ -1,43 +1,80 @@
 import { ApiError, useApi } from "@/hooks/use-api";
-import { MediaAsset } from "@/types/media";
-import { useCallback, useEffect, useState } from "react";
+import { MediaAsset, PaginatedMediaResponse } from "@/types/media";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export function useVaultGallery() {
-  // 1. Initialize our custom API client (Handles Auth, URLs, and JSON parsing internally)
   const api = useApi();
 
   const [media, setMedia] = useState<MediaAsset[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isFetchingNextPage, setIsFetchingNextPage] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 2. Wrap the fetcher in useCallback so it maintains referential equality.
-  // This allows us to safely expose it to other components to trigger manual reloads.
-  const fetchMedia = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
 
-    try {
-      // Look how clean this is now. Fully typed, environment-aware, and authenticated.
-      const data = await api.get<MediaAsset[]>("/api/media");
-      setMedia(data || []);
-    } catch (err: unknown) {
-      // Gracefully handle the "Empty Vault" 404 state without throwing a red error to the UI
-      if (err instanceof ApiError && err.status === 404) {
-        setMedia([]);
-      } else {
-        setError(
-          err instanceof Error ? err.message : "An unexpected error occurred",
+  const fetchLock = useRef(false);
+
+  const fetchMedia = useCallback(
+    async (cursor?: string | null, isLoadMore = false) => {
+      if (fetchLock.current) return;
+      fetchLock.current = true;
+
+      if (!isLoadMore) setIsLoading(true);
+      else setIsFetchingNextPage(true);
+
+      setError(null);
+
+      try {
+        const endpoint = cursor
+          ? `/api/media?cursor=${encodeURIComponent(cursor)}`
+          : "/api/media";
+
+        // Fetch the paginated response
+        const res = await api.get<PaginatedMediaResponse>(endpoint);
+
+        // Extract res.data (which is MediaAsset[]) and append or replace
+        setMedia((prev) =>
+          isLoadMore ? [...prev, ...(res.data || [])] : res.data || [],
         );
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  }, [api]); // Re-create only if the api instance changes
 
-  // 3. Fire on mount
+        // Save the new cursor for the next call
+        setNextCursor(res.nextCursor || null);
+      } catch (err: unknown) {
+        if (err instanceof ApiError && err.status === 404) {
+          if (!isLoadMore) setMedia([]);
+        } else {
+          setError(
+            err instanceof Error ? err.message : "An unexpected error occurred",
+          );
+        }
+      } finally {
+        setIsLoading(false);
+        setIsFetchingNextPage(false);
+        fetchLock.current = false;
+      }
+    },
+    [api],
+  );
+
   useEffect(() => {
     fetchMedia();
   }, [fetchMedia]);
 
-  return { media, isLoading, error, refetch: fetchMedia };
+  const loadMore = useCallback(() => {
+    if (nextCursor && !isFetchingNextPage) {
+      fetchMedia(nextCursor, true);
+    }
+  }, [nextCursor, isFetchingNextPage, fetchMedia]);
+
+  const hasNextPage = !!nextCursor;
+
+  return {
+    media,
+    isLoading,
+    isFetchingNextPage,
+    hasNextPage,
+    error,
+    loadMore,
+    refetch: () => fetchMedia(),
+  };
 }

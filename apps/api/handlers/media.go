@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -87,7 +88,7 @@ func NewMediaServer(cfg *config.Config, db *ent.Client) (*MediaServer, error) {
 
 // --- Handlers ---
 
-// HandleListMedia fetches assets and generates temporary download URLs
+// HandleListMedia fetches assets using Cursor-Based Pagination
 func (s *MediaServer) HandleListMedia(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, ok := ctx.Value(middleware.UserIDKey).(string)
@@ -96,19 +97,46 @@ func (s *MediaServer) HandleListMedia(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	assets, err := s.db.MediaAsset.Query().
-		Where(mediaasset.UserIDEQ(userID)).
-		Order(ent.Desc(mediaasset.FieldCaptureTime)).
-		All(ctx)
+	// 1. Parse Pagination Parameters
+	limitStr := r.URL.Query().Get("limit")
+	limit := 50 // Default batch size
+	if l, err := strconv.Atoi(limitStr); err == nil && l > 0 && l <= 100 {
+		limit = l
+	}
 
+	cursorStr := r.URL.Query().Get("cursor")
+
+	// 2. Build the Query
+	query := s.db.MediaAsset.Query().
+		Where(mediaasset.UserIDEQ(userID)).
+		Order(ent.Desc(mediaasset.FieldCaptureTime))
+
+	// If a cursor is provided, only get photos older than the cursor
+	if cursorStr != "" {
+		cursorTime, err := time.Parse(time.RFC3339, cursorStr)
+		if err == nil {
+			query = query.Where(mediaasset.CaptureTimeLT(cursorTime))
+		}
+	}
+
+	// 3. Fetch Limit + 1 (To check if there is a next page)
+	assets, err := query.Limit(limit + 1).All(ctx)
 	if err != nil {
 		http.Error(w, "Failed to fetch gallery", http.StatusInternalServerError)
 		return
 	}
 
+	// 4. Determine the Next Cursor
+	var nextCursor string
+	if len(assets) > limit {
+		// The extra asset's time becomes the cursor for the next page
+		nextCursor = assets[limit].CaptureTime.Format(time.RFC3339)
+		assets = assets[:limit] // Trim the array back to the requested limit
+	}
+
+	// 5. Generate Presigned URLs ONLY for this small batch
 	var response []MediaResponse
 	for _, asset := range assets {
-		// Create a Presigned GET URL so the private file is viewable in the browser
 		presignedReq, err := s.presignClient.PresignGetObject(ctx, &s3.GetObjectInput{
 			Bucket: aws.String(s.bucketName),
 			Key:    aws.String(asset.FileKey),
@@ -134,8 +162,12 @@ func (s *MediaServer) HandleListMedia(w http.ResponseWriter, r *http.Request) {
 		response = []MediaResponse{}
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	// 6. Return the Paginated Wrapper
+w.Header().Set("Content-Type", "application/json")
+json.NewEncoder(w).Encode(map[string]interface{}{
+    "data":       response,
+    "nextCursor": nextCursor,
+})
 }
 
 // HandleGetUploadURL generates a Presigned PUT URL for streaming to B2
