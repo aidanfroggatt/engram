@@ -1,12 +1,13 @@
 "use client";
 
+import { useAuth } from "@clerk/nextjs";
 import {
   AlertCircle,
   FileVideo,
   Image as ImageIcon,
   PlayCircle,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -23,11 +24,37 @@ export function MediaRenderer({
   isThumbnail = false,
   priority = false,
 }: MediaRendererProps) {
+  const { getToken } = useAuth();
+
+  // State for the URL + short-lived Clerk JWT
+  const [authUrl, setAuthUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
 
   const isVideo = asset.mimeType.startsWith("video/");
   const filename = asset.fileKey.split("/").pop() || "Vault Asset";
+
+  // Fetch a fresh token whenever the asset changes
+useEffect(() => {
+    let isMounted = true;
+
+    async function authorize() {
+      try {
+        const token = await getToken();
+        if (isMounted && token && asset.url) {
+          // SAFE URL CONSTRUCTION
+          const url = new URL(asset.url);
+          url.searchParams.set("token", token);
+          setAuthUrl(url.toString());
+        }
+      } catch (err) {
+        if (isMounted) setHasError(true);
+      }
+    }
+
+    authorize();
+    return () => { isMounted = false; };
+  }, [asset.url, getToken]);
 
   if (hasError) {
     return (
@@ -35,17 +62,21 @@ export function MediaRenderer({
         <AlertCircle className="h-5 w-5" />
         {!isThumbnail && (
           <p className="mt-2 text-xs font-mono uppercase tracking-widest">
-            Load Failure
+            Identity Verification Failed
           </p>
         )}
       </div>
     );
   }
 
+  // If we don't have the authUrl yet, we stay in the Loading/Skeleton state
+  const currentSrc = authUrl || "";
+  const showSkeleton = isLoading || !authUrl;
+
   return (
     <div className="relative flex h-full w-full items-center justify-center overflow-hidden bg-muted/5">
       {/* --- SHADCN SKELETON LOADING STATE --- */}
-      {isLoading && (
+      {showSkeleton && (
         <div className="absolute inset-0 z-10 flex items-center justify-center">
           <Skeleton className="h-full w-full flex items-center justify-center rounded-none">
             {isVideo ? (
@@ -60,10 +91,10 @@ export function MediaRenderer({
       {isVideo ? (
         <div className="relative h-full w-full flex items-center justify-center">
           <video
-            src={asset.url}
+            src={currentSrc}
             className={cn(
               "transition-opacity duration-500",
-              isLoading ? "opacity-0" : "opacity-100",
+              showSkeleton ? "opacity-0" : "opacity-100",
               isThumbnail
                 ? "h-full w-full object-cover"
                 : "max-h-full max-w-full object-contain",
@@ -75,6 +106,7 @@ export function MediaRenderer({
             muted={isThumbnail}
             loop={isThumbnail}
             playsInline
+            // Use "metadata" for thumbnails to save even more bandwidth
             preload={priority ? "auto" : "metadata"}
           />
           {isThumbnail && (
@@ -84,13 +116,12 @@ export function MediaRenderer({
           )}
         </div>
       ) : (
-        // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={asset.url}
+          src={currentSrc}
           alt={filename}
           className={cn(
             "transition-opacity duration-500",
-            isLoading ? "opacity-0" : "opacity-100",
+            showSkeleton ? "opacity-0" : "opacity-100",
             isThumbnail
               ? "h-full w-full object-cover"
               : "max-h-full max-w-full object-contain",

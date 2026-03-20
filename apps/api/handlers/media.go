@@ -21,8 +21,6 @@ import (
 	"engram/api/middleware"
 )
 
-// --- Request/Response Structs ---
-
 type MediaResponse struct {
 	ID          string   `json:"id"`
 	FileKey     string   `json:"fileKey"`
@@ -51,13 +49,19 @@ type CommitMediaRequest struct {
 	Longitude   *float64 `json:"longitude"`
 }
 
-// --- Server Definition ---
+type UpdateMediaRequest struct {
+	CaptureTime string   `json:"captureTime"`
+	Latitude    *float64 `json:"latitude"`
+	Longitude   *float64 `json:"longitude"`
+}
 
 type MediaServer struct {
 	s3Client      *s3.Client
 	presignClient *s3.PresignClient
 	bucketName    string
 	db            *ent.Client
+	proxyURL      string
+	b2Endpoint    string
 }
 
 func NewMediaServer(cfg *config.Config, db *ent.Client) (*MediaServer, error) {
@@ -85,6 +89,8 @@ client := s3.NewFromConfig(awsCfg, func(o *s3.Options) {
 		presignClient: s3.NewPresignClient(client),
 		bucketName:    cfg.B2BucketName,
 		db:            db,
+		proxyURL:      cfg.CloudflareProxyURL,
+        b2Endpoint:    cfg.B2Endpoint,
 	}, nil
 }
 
@@ -138,27 +144,23 @@ func (s *MediaServer) HandleListMedia(w http.ResponseWriter, r *http.Request) {
 
 	// 5. Generate Presigned URLs ONLY for this small batch
 	var response []MediaResponse
-	for _, asset := range assets {
-		presignedReq, err := s.presignClient.PresignGetObject(ctx, &s3.GetObjectInput{
-			Bucket: aws.String(s.bucketName),
-			Key:    aws.String(asset.FileKey),
-		}, s3.WithPresignExpires(1*time.Hour))
+for _, asset := range assets {
+    // Trim potential trailing slash from proxyURL config
+    proxyBase := strings.TrimSuffix(s.proxyURL, "/")
+    
+    // Result: https://engram-media-proxy.aidanfr.workers.dev/user_123/file.jpg
+    fileURL := fmt.Sprintf("%s/%s", proxyBase, asset.FileKey)
 
-		fileURL := ""
-		if err == nil {
-			fileURL = presignedReq.URL
-		}
-
-		response = append(response, MediaResponse{
-			ID:          asset.ID.String(),
-			FileKey:     asset.FileKey,
-			MimeType:    asset.MimeType,
-			CaptureTime: asset.CaptureTime.Format(time.RFC3339),
-			Latitude:    asset.Latitude,
-			Longitude:   asset.Longitude,
-			URL:         fileURL,
-		})
-	}
+    response = append(response, MediaResponse{
+        ID:          asset.ID.String(),
+        FileKey:     asset.FileKey,
+        MimeType:    asset.MimeType,
+        CaptureTime: asset.CaptureTime.Format(time.RFC3339),
+        Latitude:    asset.Latitude,
+        Longitude:   asset.Longitude,
+        URL:         fileURL, 
+    })
+}
 
 	if response == nil {
 		response = []MediaResponse{}
@@ -306,4 +308,30 @@ func (s *MediaServer) HandleDeleteMedia(w http.ResponseWriter, r *http.Request) 
 
 	// 4. Return 204 No Content
 	w.WriteHeader(http.StatusNoContent)
+}
+
+// HandleUpdateMedia processes metadata overrides from the frontend
+func (s *MediaServer) HandleUpdateMedia(w http.ResponseWriter, r *http.Request) {
+    ctx := r.Context()
+    userID, _ := ctx.Value(middleware.UserIDKey).(string)
+    assetID, _ := uuid.Parse(r.PathValue("id"))
+
+    var req UpdateMediaRequest
+    json.NewDecoder(r.Body).Decode(&req)
+
+    updater := s.db.MediaAsset.UpdateOneID(assetID).Where(mediaasset.UserIDEQ(userID))
+
+    if req.CaptureTime != "" {
+        if t, err := time.Parse(time.RFC3339, req.CaptureTime); err == nil {
+            updater.SetCaptureTime(t)
+        }
+    }
+    updater.SetNillableLatitude(req.Latitude).SetNillableLongitude(req.Longitude)
+
+    if _, err := updater.Save(ctx); err != nil {
+        http.Error(w, "Update failed", http.StatusInternalServerError)
+        return
+    }
+
+    w.WriteHeader(http.StatusNoContent)
 }
