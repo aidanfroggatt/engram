@@ -61,7 +61,6 @@ type MediaServer struct {
 	bucketName    string
 	db            *ent.Client
 	proxyURL      string
-	b2Endpoint    string
 }
 
 func NewMediaServer(cfg *config.Config, db *ent.Client) (*MediaServer, error) {
@@ -79,7 +78,7 @@ func NewMediaServer(cfg *config.Config, db *ent.Client) (*MediaServer, error) {
 		return nil, err
 	}
 
-client := s3.NewFromConfig(awsCfg, func(o *s3.Options) {
+	client := s3.NewFromConfig(awsCfg, func(o *s3.Options) {
 		o.BaseEndpoint = aws.String(cfg.B2Endpoint)
 		o.UsePathStyle = true
 	})
@@ -90,7 +89,6 @@ client := s3.NewFromConfig(awsCfg, func(o *s3.Options) {
 		bucketName:    cfg.B2BucketName,
 		db:            db,
 		proxyURL:      cfg.CloudflareProxyURL,
-        b2Endpoint:    cfg.B2Endpoint,
 	}, nil
 }
 
