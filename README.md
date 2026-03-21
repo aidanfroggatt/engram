@@ -213,20 +213,3 @@ Engram is engineered to scale not just in traffic, but in maintainability. The m
 * **pnpm:** Strict, fast, and disk-space-efficient package management.
 * **ESLint & TypeScript:** Shared configuration packages ensuring parity across the Web and Proxy environments.
 
-### DX Roadmap (Upcoming Implementations)
-To maintain a world-class engineering standard, the following pipeline improvements are actively tracked for implementation:
-
-- [ ] **Pre-commit Quality Gates:** Integration of `husky` and `lint-staged` to guarantee formatting (`prettier`) and linting (`eslint`/`gofmt`) pass before any commit touches the tree.
-- [ ] **Automated CI/CD Pipelines:** GitHub Actions workflows for:
-  - Automated testing (Go testing suite, Vitest).
-  - Type-checking across the boundary.
-  - Automated deployments to Vercel and Cloudflare.
-- [ ] **Centralized Environment Management:** Migrating from `.env.local` files to a unified secret manager (e.g., Doppler or Infisical) to prevent configuration drift across the distributed stack.
-- [ ] **Conventional Commits & Changesets:** Automated semantic versioning and changelog generation based on PR history.
-
-## 🔮 Product Roadmap
-
-* **Bulk Metadata Engine:** Expanding the Go API to support batch updates for location and capture-time overrides across hundreds of assets simultaneously.
-* **EXIF Extraction Pipeline:** Implementing automated edge-processing to strip, read, and normalize EXIF data upon upload before it hits deep storage.
-* **Local-First Caching:** Integrating IndexedDB or local storage strategies on the Web client to persist gallery layouts and thumbnails offline.
-* **Smart Placement Edge Routing:** Leveraging Cloudflare Smart Placement to route the Proxy's execution context dynamically closer to the B2 origin when cache misses occur, minimizing cold-fetch latency.
