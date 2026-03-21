@@ -1,159 +1,232 @@
-# Turborepo starter
+# Engram
 
-This Turborepo starter is maintained by the Turborepo core team.
+> **Your life, fully owned.** A high-performance, edge-optimized personal media vault.
 
-## Using this example
+Engram was built to solve the "private social media" problem. For years, the easiest way to digitally scrapbook life was to use a private Instagram account. While convenient, it meant sacrificing true data ownership, privacy, and media fidelity. 
 
-Run the following command:
+Engram reclaims that space. It delivers the fluid, instant experience of a modern social network, but is underpinned by a zero-trust, fully owned, and heavily cached distributed architecture. 
 
-```sh
-npx create-turbo@latest
+## 🏗️ System Architecture
+
+Engram is divided into three distinct distributed systems, separating the read-path from the write-path for maximum scale and security.
+
+```mermaid
+flowchart LR
+    A[Web Client] -->|Reads| B(Media Proxy Edge)
+    A -->|Writes| C(Go API Core)
+    B -->|Cached Fetch| D[(Deep Storage)]
+    C -->|Metadata Sync| E[(Database)]
+    C -->|Signatures| D
 ```
 
-## What's inside?
+* **Web (The Interface):** The user-facing client. It delivers a fluid, app-like gallery experience for rendering media, managing layouts, and handling user sessions.
+* **API (The Librarian):** The absolute authority for the **Write Path**. It manages metadata, orchestrates database synchronization, processes deletions, and generates secure presigned signatures for direct-to-cloud uploads.
+* **Media Proxy (The Edge Gateway):** The high-speed engine for the **Read Path**. It intercepts all media requests at the network edge, cryptographically verifies user access tokens, and streams private assets directly from deep storage while heavily caching them to eliminate egress costs.
 
-This Turborepo includes the following packages/apps:
+## ⚡ Infrastructure & Tech Stack
 
-### Apps and Packages
+Engram is a monorepo orchestrated by **Turborepo** and **pnpm**, heavily utilizing modern serverless and edge computing.
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+**Frontend & Interface**
+* **Framework:** Next.js (React)
+* **Styling:** Tailwind CSS, shadcn/ui
+* **Hosting:** Vercel (`engram.aidanfroggatt.com`)
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+**Backend & Data**
+* **Core API:** Go (1.22+)
+* **ORM:** Ent
+* **Database:** Neon Serverless Postgres
+* **Hosting:** Render / VPS (`api.engram.aidanfroggatt.com`)
 
-### Utilities
+**Edge & Storage**
+* **Media Gateway:** Cloudflare Workers (`media.engram.aidanfroggatt.com`)
+* **Deep Storage:** Backblaze B2 (Private S3-compatible buckets)
+* **Identity:** Clerk (JWT-based Edge Auth)
 
-This Turborepo has some additional tools already setup for you:
+## 📂 Project Topology
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
+```text
+engram/
+├── apps/
+│   ├── api/                 # Go API (Metadata, Upload Auth, Sync)
+│   ├── media-proxy/         # Cloudflare Worker (Edge Auth, B2 Fetch)
+│   └── web/                 # Next.js Frontend (UI, Gallery)
+├── packages/
+│   ├── eslint-config/       # Shared linting rules
+│   ├── typescript-config/   # Shared tsconfig
+│   └── ui/                  # Shared React component library
+├── turbo.json               # Turborepo orchestration
+└── package.json             # Root workspace config
 ```
 
-Without global `turbo`, use your package manager:
+## 🚀 Developer Quick Start
 
-```sh
-cd my-turborepo
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+### Prerequisites
+* Node.js & pnpm
+* Go (1.22+)
+* Wrangler CLI (Cloudflare)
+
+### 1. Environment Configuration
+
+You will need to configure environment variables across the three primary apps.
+
+**`apps/api/.env.local`** (The Librarian)
+```env
+APP_ENV="development"
+ALLOWED_ORIGIN="http://localhost:3000"
+DATABASE_URL="postgresql://[user]:[password]@[neon-host]/[db]?sslmode=require"
+JWKS_URL="https://[your-clerk-domain]/.well-known/jwks.json"
+B2_KEY_ID="your_b2_key_id"
+B2_APP_KEY="your_b2_app_key"
+B2_ENDPOINT="s3.us-east-005.backblazeb2.com"
+B2_BUCKET_NAME="engram-dev"
+CLOUDFLARE_PROXY_URL="[http://127.0.0.1:8787](http://127.0.0.1:8787)"
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo build --filter=docs
+**`apps/media-proxy/.dev.vars`** (The Edge Gateway - *Do not commit*)
+```env
+B2_KEY_ID="your_b2_key_id"
+B2_APP_KEY="your_b2_app_key"
 ```
 
-Without global `turbo`:
-
-```sh
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+**`apps/media-proxy/wrangler.jsonc`** (Public Edge Config)
+```jsonc
+{
+  "vars": {
+    "B2_ENDPOINT": "s3.us-east-005.backblazeb2.com",
+    "B2_BUCKET_NAME": "engram-dev",
+    "JWKS_URL": "https://[your-clerk-domain]/.well-known/jwks.json"
+  }
+}
 ```
 
-### Develop
-
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
+**`apps/web/.env.local`** (The Interface)
+```env
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_..."
+CLERK_SECRET_KEY="sk_test_..."
+NEXT_PUBLIC_API_URL="http://localhost:8080"
 ```
 
-Without global `turbo`, use your package manager:
+### 2. Ignition
 
-```sh
-cd my-turborepo
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
+Install all workspace dependencies from the root:
+```bash
+pnpm install
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+Boot the entire distributed system (Web, Go API, and Cloudflare Proxy) simultaneously using Turborepo:
+```bash
+pnpm dev
+```
+* **Web:** `http://localhost:3000`
+* **Go API:** `http://localhost:8080`
+* **Media Proxy:** `http://127.0.0.1:8787`
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+## 🔒 Security Posture
 
-```sh
-turbo dev --filter=web
+Engram operates on a strict "Zero Trust" model. Every layer requires verification, and storage is completely isolated from the public web.
+
+```mermaid
+stateDiagram-v2
+    [*] --> EdgeProxy : Media Request
+    EdgeProxy --> Reject : Invalid JWT
+    EdgeProxy --> Verify : Valid JWT
+    Verify --> Reject : Path Mismatch
+    Verify --> Access : Matches Partition
+    Access --> DeepStorage : Internal Signed S3 Fetch
 ```
 
-Without global `turbo`:
+1. **Dark Buckets:** Deep storage (Backblaze B2) is completely isolated from the public internet. No direct bucket access is permitted.
+2. **Edge Verification:** The media proxy requires a cryptographically signed Clerk JWT for every read request. Invalid or missing tokens are rejected in `<10ms` at the network edge before ever touching deep storage.
+3. **Partitioned Namespaces:** File access is strictly scoped to the authenticated user's ID (`/user_id/asset.jpg`). The proxy enforces this partition, preventing horizontal object enumeration.
 
-```sh
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
+## 🗺️ System Topology
+
+To understand how Engram maintains zero-egress reads while securing the write-path, refer to the data flow diagrams below.
+
+### High-Level Architecture
+The system completely decouples the heavy-lifting of media delivery from the relational metadata logic.
+
+```mermaid
+graph TD
+    %% Entities
+    Client([Web Client])
+    Proxy[Media Proxy<br/>Cloudflare Worker]
+    API[Librarian API<br/>Go 1.22]
+    DB[(Neon Postgres)]
+    Vault[(Backblaze B2<br/>Deep Storage)]
+    Auth{Clerk Identity}
+
+    %% Relationships
+    Client -->|Read Path <br/> Image Stream| Proxy
+    Client -->|Write Path <br/> Metadata & Overrides| API
+    
+    Proxy -.->|Edge JWKS Verification| Auth
+    Proxy -->|Zero-Egress Fetch| Vault
+    
+    API -.->|Upload Auth Validation| Auth
+    API -->|Metadata Sync| DB
+    API -->|S3 Presign & Delete| Vault
+
+    %% Styling
+    classDef edge fill:#f97316,stroke:#ea580c,color:#fff;
+    classDef core fill:#3b82f6,stroke:#2563eb,color:#fff;
+    classDef storage fill:#10b981,stroke:#059669,color:#fff;
+    
+    class Proxy edge;
+    class API core;
+    class Vault,DB storage;
 ```
 
-### Remote Caching
+### The Read Path (Edge Gateway)
+When a client requests media, the Go API is bypassed entirely. The Cloudflare Worker handles the request lifecycle in under 10ms.
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client
+    participant Edge as Media Proxy (Worker)
+    participant Auth as Identity Provider
+    participant Vault as B2 Storage
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
+    Client->>Edge: GET /user_id/asset.jpg?token=jwt
+    Edge->>Edge: Cache Check (CF-Cache)
+    
+    alt Cache Miss
+        Edge->>Auth: Verify Token Signature
+        Auth-->>Edge: Valid Payload (sub: user_id)
+        Edge->>Edge: Enforce Path Partitioning
+        Edge->>Vault: AWS V4 Signed Request
+        Vault-->>Edge: Media Stream
+        Edge->>Edge: Populate Edge Cache (30 Days)
+    end
+    
+    Edge-->>Client: Final Edge Delivery (HIT/MISS)
 ```
 
-Without global `turbo`, use your package manager:
+## 🛠️ Developer Experience (DX) & CI/CD
 
-```sh
-cd my-turborepo
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
+Engram is engineered to scale not just in traffic, but in maintainability. The monorepo is currently orchestrated by **Turborepo** for aggressive build caching and parallel task execution.
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+### Current Tooling
+* **Turborepo:** Workspace orchestration and remote caching.
+* **pnpm:** Strict, fast, and disk-space-efficient package management.
+* **ESLint & TypeScript:** Shared configuration packages ensuring parity across the Web and Proxy environments.
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+### DX Roadmap (Upcoming Implementations)
+To maintain a world-class engineering standard, the following pipeline improvements are actively tracked for implementation:
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+- [ ] **Pre-commit Quality Gates:** Integration of `husky` and `lint-staged` to guarantee formatting (`prettier`) and linting (`eslint`/`gofmt`) pass before any commit touches the tree.
+- [ ] **Automated CI/CD Pipelines:** GitHub Actions workflows for:
+  - Automated testing (Go testing suite, Vitest).
+  - Type-checking across the boundary.
+  - Automated deployments to Vercel and Cloudflare.
+- [ ] **Centralized Environment Management:** Migrating from `.env.local` files to a unified secret manager (e.g., Doppler or Infisical) to prevent configuration drift across the distributed stack.
+- [ ] **Conventional Commits & Changesets:** Automated semantic versioning and changelog generation based on PR history.
 
-```sh
-turbo link
-```
+## 🔮 Product Roadmap
 
-Without global `turbo`:
-
-```sh
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+* **Bulk Metadata Engine:** Expanding the Go API to support batch updates for location and capture-time overrides across hundreds of assets simultaneously.
+* **EXIF Extraction Pipeline:** Implementing automated edge-processing to strip, read, and normalize EXIF data upon upload before it hits deep storage.
+* **Local-First Caching:** Integrating IndexedDB or local storage strategies on the Web client to persist gallery layouts and thumbnails offline.
+* **Smart Placement Edge Routing:** Leveraging Cloudflare Smart Placement to route the Proxy's execution context dynamically closer to the B2 origin when cache misses occur, minimizing cold-fetch latency.
