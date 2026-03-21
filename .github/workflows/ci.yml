@@ -12,7 +12,6 @@ concurrency:
 
 env:
   TURBO_TELEMETRY_DISABLED: 1
-  FILTER: ${{ github.event_name == 'pull_request' && format('--filter=[...origin/{0}]', github.base_ref) || '' }}
 
 jobs:
   verify:
@@ -45,17 +44,11 @@ jobs:
       - name: Cache Turbo
         uses: dtinth/setup-github-actions-caching-for-turbo@v1
 
-      - name: Lint
-        run: pnpm turbo lint ${{ env.FILTER }}
-
-      - name: Typecheck
-        run: pnpm turbo check-types ${{ env.FILTER }}
-
-      - name: Format
-        run: pnpm turbo format ${{ env.FILTER }}
+      - name: Verify
+        run: pnpm turbo lint check-types format --affected
 
       - name: Build
-        run: pnpm turbo build ${{ env.FILTER }}
+        run: pnpm turbo build --affected
 
-      - name: Test (Go)
-        run: pnpm turbo test --filter=@engram/api...
+      - name: Test
+        run: pnpm turbo test --affected
