@@ -2,6 +2,14 @@
   "name": "engram",
   "private": true,
   "packageManager": "pnpm@10.32.1",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@clerk/shared",
+      "esbuild",
+      "sharp",
+      "workerd"
+    ]
+  },
   "engines": {
     "node": "20.x"
   },
