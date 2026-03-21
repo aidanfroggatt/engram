@@ -12,12 +12,11 @@ concurrency:
 
 env:
   TURBO_TELEMETRY_DISABLED: 1
-  # Ensures Turbo knows what to compare against in GitHub Actions
   TURBO_SCM_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
 
 jobs:
-  verify:
-    name: Quality Gate
+  ci:
+    name: CI
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -46,17 +45,17 @@ jobs:
       - name: Cache Turbo
         uses: dtinth/setup-github-actions-caching-for-turbo@v1
 
-      - name: 🧹 Check Formatting
+      - name: 🧹 Verify Formatting
         run: pnpm turbo format --affected
 
-      - name: ⬢ Lint Source
+      - name: ⬢ Lint Codebase
         run: pnpm turbo lint --affected
 
-      - name: 🔠 Verify Types
+      - name: 🔠 Static Type Check
         run: pnpm turbo check-types --affected
 
-      - name: 🏗️ Build Affected
+      - name: 🏗️ Verify Build Stability
         run: pnpm turbo build --affected
 
-      - name: 🧪 Run Tests
+      - name: 🧪 Execute Unit Tests
         run: pnpm turbo test --affected

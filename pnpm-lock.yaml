@@ -19,12 +19,18 @@ importers:
       "@eslint/js":
         specifier: ^9.39.1
         version: 9.39.1
+      "@types/node":
+        specifier: ^25.5.0
+        version: 25.5.0
       eslint:
         specifier: ^9.39.1
         version: 9.39.1(jiti@2.6.1)
       husky:
         specifier: ^9.1.7
         version: 9.1.7
+      jiti:
+        specifier: ^2.6.1
+        version: 2.6.1
       lint-staged:
         specifier: ^16.4.0
         version: 16.4.0
