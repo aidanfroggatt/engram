@@ -7,7 +7,7 @@
     "test": "go test ./... -v",
     "format": "gofmt -w .",
     "check-types": "go vet ./...",
-    "lint": "golangci-lint run",
+    "lint": "go tool golangci-lint run",
     "build": "go build -o bin/api main.go"
   }
 }
