@@ -25,7 +25,16 @@
       "outputs": []
     },
     "test": {
-      "dependsOn": ["^test"]
+      "dependsOn": ["^test"],
+      "passThroughEnv": [
+        "LocalAppData",
+        "GOPATH",
+        "USERPROFILE",
+        "SystemRoot",
+        "SystemDrive",
+        "TEMP",
+        "TMP"
+      ]
     },
     "deploy": {
       "dependsOn": ["build", "lint"],
