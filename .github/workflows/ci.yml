@@ -12,9 +12,6 @@ concurrency:
 
 env:
   TURBO_TELEMETRY_DISABLED: 1
-  NODE_VERSION: 20
-  GO_VERSION: "1.22"
-  PNPM_VERSION: 10
   FILTER: ${{ github.event_name == 'pull_request' && format('--filter=[...origin/{0}]', github.base_ref) || '' }}
 
 jobs:
@@ -29,19 +26,17 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version-file: "package.json"
           cache: "pnpm"
 
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: ${{ env.GO_VERSION }}
+          go-version-file: "apps/api/go.mod"
           cache: true
 
       - name: Install
@@ -63,5 +58,4 @@ jobs:
         run: pnpm turbo build ${{ env.FILTER }}
 
       - name: Test (Go)
-        if: contains(github.event.pull_request.labels.*.name, 'skip-go-test') == false
         run: pnpm turbo test --filter=@engram/api...
