@@ -28,6 +28,7 @@ export default [
       parserOptions: {
         projectService: true,
         tsconfigRootDir: import.meta.dirname,
+        ecmaFeatures: { jsx: true },
       },
     },
     rules: {
@@ -41,6 +42,16 @@ export default [
       ],
       "@typescript-eslint/no-explicit-any": "off",
       "no-console": ["warn", { allow: ["warn", "error"] }],
+      "react/prop-types": "off",
+    },
+  },
+  {
+    files: ["apps/web/**/*.ts", "apps/web/**/*.tsx"],
+    rules: {
+      ...nextPlugin.configs.recommended.rules,
+      ...nextPlugin.configs["core-web-vitals"].rules,
+      "@next/next/no-html-link-for-pages": "error",
+      "@next/next/no-img-element": "off",
     },
   },
 ];
