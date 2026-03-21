@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "air",
+    "test": "go test ./... -v",
     "build": "go build -o bin/api main.go"
   }
 }
