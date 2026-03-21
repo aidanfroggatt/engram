@@ -41,9 +41,6 @@ export default [
       ],
       "@typescript-eslint/no-explicit-any": "off",
       "no-console": ["warn", { allow: ["warn", "error"] }],
-
-      "react/prop-types": "off",
-      "@next/next/no-img-element": "warn",
     },
   },
 ];
