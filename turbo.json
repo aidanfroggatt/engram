@@ -3,7 +3,7 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**", "!-next/cache/**", "dist/**", "bin/**"],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**", "bin/**"],
       "passThroughEnv": [
         "LocalAppData",
         "GOPATH",
@@ -13,6 +13,10 @@
         "TEMP",
         "TMP"
       ]
+    },
+    "deploy": {
+      "dependsOn": ["build", "lint"],
+      "cache": false
     },
     "lint": {
       "dependsOn": ["^lint"]
