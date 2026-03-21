@@ -14,12 +14,21 @@
         "TMP"
       ]
     },
-    "deploy": {
-      "dependsOn": ["build", "lint"],
-      "cache": false
+    "check-types": {
+      "dependsOn": ["^check-types"]
     },
     "lint": {
       "dependsOn": ["^lint"]
+    },
+    "format": {
+      "outputs": []
+    },
+    "test": {
+      "dependsOn": ["^test"]
+    },
+    "deploy": {
+      "dependsOn": ["build", "lint"],
+      "cache": false
     },
     "dev": {
       "cache": false,

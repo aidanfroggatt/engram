@@ -3,12 +3,12 @@
 // Runtime types generated with workerd@1.20260317.1 2026-03-10 nodejs_compat
 declare namespace Cloudflare {
 	interface GlobalProps {
-		mainModule: typeof import("./index");
+		mainModule: typeof import('./index');
 	}
 	interface Env {
-		B2_ENDPOINT: "s3.us-east-005.backblazeb2.com";
-		B2_BUCKET_NAME: "engram-dev";
-		JWKS_URL: "https://stunning-koi-71.clerk.accounts.dev/.well-known/jwks.json";
+		B2_ENDPOINT: 's3.us-east-005.backblazeb2.com';
+		B2_BUCKET_NAME: 'engram-dev';
+		JWKS_URL: 'https://stunning-koi-71.clerk.accounts.dev/.well-known/jwks.json';
 		B2_KEY_ID: string;
 		B2_APP_KEY: string;
 	}
@@ -18,7 +18,9 @@ type StringifyValues<EnvType extends Record<string, unknown>> = {
 	[Binding in keyof EnvType]: EnvType[Binding] extends string ? EnvType[Binding] : string;
 };
 declare namespace NodeJS {
-	interface ProcessEnv extends StringifyValues<Pick<Cloudflare.Env, "B2_ENDPOINT" | "B2_BUCKET_NAME" | "JWKS_URL" | "B2_KEY_ID" | "B2_APP_KEY">> {}
+	interface ProcessEnv extends StringifyValues<
+		Pick<Cloudflare.Env, 'B2_ENDPOINT' | 'B2_BUCKET_NAME' | 'JWKS_URL' | 'B2_KEY_ID' | 'B2_APP_KEY'>
+	> {}
 }
 
 // Begin runtime types
@@ -9286,7 +9288,7 @@ type AIGatewayHeaders = {
 	[key: string]: string | number | boolean | object;
 };
 type AIGatewayUniversalRequest = {
-	provider: AIGatewayProviders | string; // eslint-disable-line
+	provider: AIGatewayProviders | string;  
 	endpoint: string;
 	headers: Partial<AIGatewayHeaders>;
 	query: unknown;
@@ -9303,7 +9305,7 @@ declare abstract class AiGateway {
 			extraHeaders?: object;
 		},
 	): Promise<Response>;
-	getUrl(provider?: AIGatewayProviders | string): Promise<string>; // eslint-disable-line
+	getUrl(provider?: AIGatewayProviders | string): Promise<string>;  
 }
 /**
  * @deprecated AutoRAG has been replaced by AI Search. Use AiSearchInternalError instead.

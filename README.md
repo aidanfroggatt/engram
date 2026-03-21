@@ -2,9 +2,9 @@
 
 > **Your life, fully owned.** A high-performance, edge-optimized personal media vault.
 
-Engram was built to solve the "private social media" problem. For years, the easiest way to digitally scrapbook life was to use a private Instagram account. While convenient, it meant sacrificing true data ownership, privacy, and media fidelity. 
+Engram was built to solve the "private social media" problem. For years, the easiest way to digitally scrapbook life was to use a private Instagram account. While convenient, it meant sacrificing true data ownership, privacy, and media fidelity.
 
-Engram reclaims that space. It delivers the fluid, instant experience of a modern social network, but is underpinned by a zero-trust, fully owned, and heavily cached distributed architecture. 
+Engram reclaims that space. It delivers the fluid, instant experience of a modern social network, but is underpinned by a zero-trust, fully owned, and heavily cached distributed architecture.
 
 ## 🏗️ System Architecture
 
@@ -19,29 +19,32 @@ flowchart LR
     C -->|Signatures| D
 ```
 
-* **Web (The Interface):** The user-facing client. It delivers a fluid, app-like gallery experience for rendering media, managing layouts, and handling user sessions.
-* **API (The Librarian):** The absolute authority for the **Write Path**. It manages metadata, orchestrates database synchronization, processes deletions, and generates secure presigned signatures for direct-to-cloud uploads.
-* **Media Proxy (The Edge Gateway):** The high-speed engine for the **Read Path**. It intercepts all media requests at the network edge, cryptographically verifies user access tokens, and streams private assets directly from deep storage while heavily caching them to eliminate egress costs.
+- **Web (The Interface):** The user-facing client. It delivers a fluid, app-like gallery experience for rendering media, managing layouts, and handling user sessions.
+- **API (The Librarian):** The absolute authority for the **Write Path**. It manages metadata, orchestrates database synchronization, processes deletions, and generates secure presigned signatures for direct-to-cloud uploads.
+- **Media Proxy (The Edge Gateway):** The high-speed engine for the **Read Path**. It intercepts all media requests at the network edge, cryptographically verifies user access tokens, and streams private assets directly from deep storage while heavily caching them to eliminate egress costs.
 
 ## ⚡ Infrastructure & Tech Stack
 
 Engram is a monorepo orchestrated by **Turborepo** and **pnpm**, heavily utilizing modern serverless and edge computing.
 
 **Frontend & Interface**
-* **Framework:** Next.js (React)
-* **Styling:** Tailwind CSS, shadcn/ui
-* **Hosting:** Vercel (`engram.aidanfroggatt.com`)
+
+- **Framework:** Next.js (React)
+- **Styling:** Tailwind CSS, shadcn/ui
+- **Hosting:** Vercel (`engram.aidanfroggatt.com`)
 
 **Backend & Data**
-* **Core API:** Go (1.22+)
-* **ORM:** Ent
-* **Database:** Neon Serverless Postgres
-* **Hosting:** Render / VPS (`api.engram.aidanfroggatt.com`)
+
+- **Core API:** Go (1.22+)
+- **ORM:** Ent
+- **Database:** Neon Serverless Postgres
+- **Hosting:** Render / VPS (`api.engram.aidanfroggatt.com`)
 
 **Edge & Storage**
-* **Media Gateway:** Cloudflare Workers (`media.engram.aidanfroggatt.com`)
-* **Deep Storage:** Backblaze B2 (Private S3-compatible buckets)
-* **Identity:** Clerk (JWT-based Edge Auth)
+
+- **Media Gateway:** Cloudflare Workers (`media.engram.aidanfroggatt.com`)
+- **Deep Storage:** Backblaze B2 (Private S3-compatible buckets)
+- **Identity:** Clerk (JWT-based Edge Auth)
 
 ## 📂 Project Topology
 
@@ -62,15 +65,17 @@ engram/
 ## 🚀 Developer Quick Start
 
 ### Prerequisites
-* Node.js & pnpm
-* Go (1.22+)
-* Wrangler CLI (Cloudflare)
+
+- Node.js & pnpm
+- Go (1.22+)
+- Wrangler CLI (Cloudflare)
 
 ### 1. Environment Configuration
 
 You will need to configure environment variables across the three primary apps.
 
 **`apps/api/.env.local`** (The Librarian)
+
 ```env
 APP_ENV="development"
 ALLOWED_ORIGIN="http://localhost:3000"
@@ -83,24 +88,27 @@ B2_BUCKET_NAME="engram-dev"
 CLOUDFLARE_PROXY_URL="[http://127.0.0.1:8787](http://127.0.0.1:8787)"
 ```
 
-**`apps/media-proxy/.dev.vars`** (The Edge Gateway - *Do not commit*)
+**`apps/media-proxy/.dev.vars`** (The Edge Gateway - _Do not commit_)
+
 ```env
 B2_KEY_ID="your_b2_key_id"
 B2_APP_KEY="your_b2_app_key"
 ```
 
 **`apps/media-proxy/wrangler.jsonc`** (Public Edge Config)
+
 ```jsonc
 {
   "vars": {
     "B2_ENDPOINT": "s3.us-east-005.backblazeb2.com",
     "B2_BUCKET_NAME": "engram-dev",
-    "JWKS_URL": "https://[your-clerk-domain]/.well-known/jwks.json"
-  }
+    "JWKS_URL": "https://[your-clerk-domain]/.well-known/jwks.json",
+  },
 }
 ```
 
 **`apps/web/.env.local`** (The Interface)
+
 ```env
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_..."
 CLERK_SECRET_KEY="sk_test_..."
@@ -110,17 +118,20 @@ NEXT_PUBLIC_API_URL="http://localhost:8080"
 ### 2. Ignition
 
 Install all workspace dependencies from the root:
+
 ```bash
 pnpm install
 ```
 
 Boot the entire distributed system (Web, Go API, and Cloudflare Proxy) simultaneously using Turborepo:
+
 ```bash
 pnpm dev
 ```
-* **Web:** `http://localhost:3000`
-* **Go API:** `http://localhost:8080`
-* **Media Proxy:** `http://127.0.0.1:8787`
+
+- **Web:** `http://localhost:3000`
+- **Go API:** `http://localhost:8080`
+- **Media Proxy:** `http://127.0.0.1:8787`
 
 ## 🔒 Security Posture
 
@@ -145,6 +156,7 @@ stateDiagram-v2
 To understand how Engram maintains zero-egress reads while securing the write-path, refer to the data flow diagrams below.
 
 ### High-Level Architecture
+
 The system completely decouples the heavy-lifting of media delivery from the relational metadata logic.
 
 ```mermaid
@@ -160,10 +172,10 @@ graph TD
     %% Relationships
     Client -->|Read Path <br/> Image Stream| Proxy
     Client -->|Write Path <br/> Metadata & Overrides| API
-    
+
     Proxy -.->|Edge JWKS Verification| Auth
     Proxy -->|Zero-Egress Fetch| Vault
-    
+
     API -.->|Upload Auth Validation| Auth
     API -->|Metadata Sync| DB
     API -->|S3 Presign & Delete| Vault
@@ -172,13 +184,14 @@ graph TD
     classDef edge fill:#f97316,stroke:#ea580c,color:#fff;
     classDef core fill:#3b82f6,stroke:#2563eb,color:#fff;
     classDef storage fill:#10b981,stroke:#059669,color:#fff;
-    
+
     class Proxy edge;
     class API core;
     class Vault,DB storage;
 ```
 
 ### The Read Path (Edge Gateway)
+
 When a client requests media, the Go API is bypassed entirely. The Cloudflare Worker handles the request lifecycle in under 10ms.
 
 ```mermaid
@@ -191,7 +204,7 @@ sequenceDiagram
 
     Client->>Edge: GET /user_id/asset.jpg?token=jwt
     Edge->>Edge: Cache Check (CF-Cache)
-    
+
     alt Cache Miss
         Edge->>Auth: Verify Token Signature
         Auth-->>Edge: Valid Payload (sub: user_id)
@@ -200,7 +213,7 @@ sequenceDiagram
         Vault-->>Edge: Media Stream
         Edge->>Edge: Populate Edge Cache (30 Days)
     end
-    
+
     Edge-->>Client: Final Edge Delivery (HIT/MISS)
 ```
 
@@ -209,7 +222,7 @@ sequenceDiagram
 Engram is engineered to scale not just in traffic, but in maintainability. The monorepo is currently orchestrated by **Turborepo** for aggressive build caching and parallel task execution.
 
 ### Current Tooling
-* **Turborepo:** Workspace orchestration and remote caching.
-* **pnpm:** Strict, fast, and disk-space-efficient package management.
-* **ESLint & TypeScript:** Shared configuration packages ensuring parity across the Web and Proxy environments.
 
+- **Turborepo:** Workspace orchestration and remote caching.
+- **pnpm:** Strict, fast, and disk-space-efficient package management.
+- **ESLint & TypeScript:** Shared configuration packages ensuring parity across the Web and Proxy environments.

@@ -6,6 +6,7 @@
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "deploy": "turbo run deploy",
+    "test": "turbo run test",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
     "prepare": "husky"
@@ -18,11 +19,14 @@
     "@bufbuild/buf": "^1.66.1",
     "@bufbuild/protoc-gen-es": "^2.11.0",
     "@connectrpc/protoc-gen-connect-es": "^1.7.0",
+    "@eslint/js": "^9.39.1",
+    "eslint": "^9.39.1",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
     "prettier": "^3.7.4",
     "turbo": "^2.8.17",
-    "typescript": "5.9.2"
+    "typescript": "5.9.2",
+    "typescript-eslint": "^8.50.0"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

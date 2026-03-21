@@ -43,9 +43,7 @@ export default function SignInPage() {
             onClick={handleDemoLogin}
           >
             <Sparkles className="mr-3 h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-            <span className="text-xs font-bold uppercase tracking-widest">
-              Explore Demo Vault
-            </span>
+            <span className="text-xs font-bold uppercase tracking-widest">Explore Demo Vault</span>
           </Button>
         </div>
       </div>

@@ -3,14 +3,12 @@
 import { useAuth } from "@clerk/nextjs";
 import { useCallback, useMemo } from "react";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ||
-  "http://localhost:8080";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://localhost:8080";
 
 export class ApiError extends Error {
   constructor(
     public status: number,
-    message: string,
+    message: string
   ) {
     super(message);
     this.name = "ApiError";
@@ -22,10 +20,7 @@ export function useApi() {
 
   // 1. Memoize the core request engine so it maintains referential equality
   const request = useCallback(
-    async <TResponse>(
-      endpoint: string,
-      options: RequestInit = {},
-    ): Promise<TResponse> => {
+    async <TResponse>(endpoint: string, options: RequestInit = {}): Promise<TResponse> => {
       const isExternal = endpoint.startsWith("http");
       const url = isExternal
         ? endpoint
@@ -46,15 +41,14 @@ export function useApi() {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => null);
-        const errorMessage =
-          errorData?.error || errorData?.message || response.statusText;
+        const errorMessage = errorData?.error || errorData?.message || response.statusText;
         throw new ApiError(response.status, errorMessage);
       }
 
       if (response.status === 204) return {} as TResponse;
       return response.json();
     },
-    [getToken], // Only rebuild this function if the Clerk Auth state changes
+    [getToken] // Only rebuild this function if the Clerk Auth state changes
   );
 
   // 2. Memoize the returned API object so consumers don't trigger infinite loops
@@ -63,22 +57,14 @@ export function useApi() {
       get: <TResponse>(endpoint: string, options?: RequestInit) =>
         request<TResponse>(endpoint, { ...options, method: "GET" }),
 
-      post: <TResponse, TBody = unknown>(
-        endpoint: string,
-        body?: TBody,
-        options?: RequestInit,
-      ) =>
+      post: <TResponse, TBody = unknown>(endpoint: string, body?: TBody, options?: RequestInit) =>
         request<TResponse>(endpoint, {
           ...options,
           method: "POST",
           body: body ? JSON.stringify(body) : undefined,
         }),
 
-      put: <TResponse, TBody = unknown>(
-        endpoint: string,
-        body?: TBody,
-        options?: RequestInit,
-      ) =>
+      put: <TResponse, TBody = unknown>(endpoint: string, body?: TBody, options?: RequestInit) =>
         request<TResponse>(endpoint, {
           ...options,
           method: "PUT",
@@ -88,10 +74,7 @@ export function useApi() {
       delete: <TResponse>(endpoint: string, options?: RequestInit) =>
         request<TResponse>(endpoint, { ...options, method: "DELETE" }),
 
-      raw: async (
-        endpoint: string,
-        options?: RequestInit,
-      ): Promise<Response> => {
+      raw: async (endpoint: string, options?: RequestInit): Promise<Response> => {
         const isExternal = endpoint.startsWith("http");
         const url = isExternal ? endpoint : `${API_BASE_URL}${endpoint}`;
 
@@ -106,6 +89,6 @@ export function useApi() {
         return res;
       },
     }),
-    [request, getToken],
+    [request, getToken]
   );
 }

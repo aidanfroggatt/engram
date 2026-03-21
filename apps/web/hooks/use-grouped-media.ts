@@ -10,8 +10,7 @@ export function useGroupedMedia(media: MediaAsset[], timeScale: TimeScale) {
 
     const groups: Record<string, MediaAsset[]> = {};
     const sorted = [...media].sort(
-      (a, b) =>
-        new Date(b.captureTime).getTime() - new Date(a.captureTime).getTime(),
+      (a, b) => new Date(b.captureTime).getTime() - new Date(a.captureTime).getTime()
     );
 
     sorted.forEach((item) => {

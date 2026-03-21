@@ -20,14 +20,8 @@ import { useVaultGallery } from "@/hooks/use-vault-gallery";
 import { MediaAsset } from "@/types/media";
 
 export default function GalleryPage() {
-  const {
-    media,
-    isLoading,
-    isFetchingNextPage,
-    hasNextPage,
-    loadMore,
-    refetch,
-  } = useVaultGallery();
+  const { media, isLoading, isFetchingNextPage, hasNextPage, loadMore, refetch } =
+    useVaultGallery();
 
   const [timeScale, setTimeScale] = useState<TimeScale>("week");
   const groupedMedia = useGroupedMedia(media, timeScale);
@@ -52,25 +46,15 @@ export default function GalleryPage() {
           <div className="flex items-center gap-4">
             <Logo showText={false} iconSize={20} />
             <div className="flex flex-col">
-              <span className="text-xs font-bold uppercase tracking-tighter">
-                Engram
-              </span>
-              <Badge
-                variant="outline"
-                className="h-4 px-1.5 font-mono text-[8px] uppercase"
-              >
+              <span className="text-xs font-bold uppercase tracking-tighter">Engram</span>
+              <Badge variant="outline" className="h-4 px-1.5 font-mono text-[8px] uppercase">
                 {media.length} Nodes
               </Badge>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              size="sm"
-              asChild
-              className="hidden md:flex"
-            >
+            <Button variant="outline" size="sm" asChild className="hidden md:flex">
               <Link href="/upload">
                 <Plus className="mr-2 h-4 w-4" /> Add Media
               </Link>
@@ -86,11 +70,7 @@ export default function GalleryPage() {
 
       {/* --- MOBILE ACTION BAR --- */}
       <div className="fixed bottom-6 inset-x-0 z-40 flex justify-center md:hidden pointer-events-none">
-        <Button
-          size="lg"
-          asChild
-          className="rounded-full shadow-lg pointer-events-auto"
-        >
+        <Button size="lg" asChild className="rounded-full shadow-lg pointer-events-auto">
           <Link href="/upload">
             <Plus className="mr-2 h-5 w-5" /> Upload
           </Link>
@@ -137,9 +117,7 @@ export default function GalleryPage() {
           <Card className="flex flex-col items-center justify-center border-dashed py-32 text-center">
             <CardContent>
               <DatabaseBackup className="mb-4 h-12 w-12 text-muted-foreground/20 mx-auto" />
-              <p className="text-sm font-medium text-muted-foreground">
-                Vault Partition Empty
-              </p>
+              <p className="text-sm font-medium text-muted-foreground">Vault Partition Empty</p>
               <Button variant="link" asChild className="mt-2">
                 <Link href="/upload">Initialize first batch</Link>
               </Button>
@@ -151,9 +129,7 @@ export default function GalleryPage() {
               <section key={label}>
                 {/* Sticky Section Header */}
                 <div className="sticky top-16 z-30 bg-background/95 py-4 flex items-center gap-4">
-                  <h2 className="text-sm font-bold uppercase tracking-widest">
-                    {label}
-                  </h2>
+                  <h2 className="text-sm font-bold uppercase tracking-widest">{label}</h2>
                   <Separator className="flex-1" />
                   <Badge variant="secondary" className="font-mono text-[10px]">
                     {assets.length}
@@ -170,11 +146,7 @@ export default function GalleryPage() {
                       aria-haspopup="dialog"
                       className="group relative aspect-square overflow-hidden rounded-md border bg-muted transition-colors hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                     >
-                      <MediaRenderer
-                        asset={asset}
-                        isThumbnail={true}
-                        priority={i < 8}
-                      />
+                      <MediaRenderer asset={asset} isThumbnail={true} priority={i < 8} />
                       {asset.latitude && (
                         <div className="absolute right-2 top-2">
                           <MapPin className="h-3 w-3 text-primary opacity-0 transition-opacity group-hover:opacity-100" />
@@ -189,17 +161,9 @@ export default function GalleryPage() {
             {/* Pagination */}
             {hasNextPage && (
               <div className="flex justify-center py-12">
-                <Button
-                  variant="secondary"
-                  onClick={loadMore}
-                  disabled={isFetchingNextPage}
-                >
-                  {isFetchingNextPage && (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  )}
-                  {isFetchingNextPage
-                    ? "Decrypting Nodes..."
-                    : "Load Older Archives"}
+                <Button variant="secondary" onClick={loadMore} disabled={isFetchingNextPage}>
+                  {isFetchingNextPage && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {isFetchingNextPage ? "Decrypting Nodes..." : "Load Older Archives"}
                 </Button>
               </div>
             )}

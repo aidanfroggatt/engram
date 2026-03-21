@@ -7,11 +7,7 @@ interface LogoProps {
   className?: string;
 }
 
-export function Logo({
-  showText = true,
-  iconSize = 20,
-  className = "",
-}: LogoProps) {
+export function Logo({ showText = true, iconSize = 20, className = "" }: LogoProps) {
   return (
     <div className={`flex items-center gap-4 ${className}`}>
       {/* Logo Wrapper */}
