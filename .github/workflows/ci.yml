@@ -15,8 +15,8 @@ env:
   TURBO_SCM_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
 
 jobs:
-  ci:
-    name: CI
+  quality-gate:
+    name: Quality Gate
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -45,17 +45,17 @@ jobs:
       - name: Cache Turbo
         uses: dtinth/setup-github-actions-caching-for-turbo@v1
 
-      - name: 🧹 Verify Formatting
+      - name: 🧹 Format
         run: pnpm turbo format --affected
 
-      - name: ⬢ Lint Codebase
+      - name: ⬢ Lint
         run: pnpm turbo lint --affected
 
-      - name: 🔠 Static Type Check
+      - name: 🔠 Types
         run: pnpm turbo check-types --affected
 
-      - name: 🏗️ Verify Build Stability
+      - name: 🏗️ Build
         run: pnpm turbo build --affected
 
-      - name: 🧪 Execute Unit Tests
+      - name: 🧪 Test
         run: pnpm turbo test --affected

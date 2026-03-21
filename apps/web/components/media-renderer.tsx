@@ -42,7 +42,7 @@ export function MediaRenderer({
           url.searchParams.set("token", token);
           setAuthUrl(url.toString());
         }
-      } catch (err) {
+      } catch {
         if (isMounted) setHasError(true);
       }
     }
@@ -111,6 +111,7 @@ export function MediaRenderer({
           )}
         </div>
       ) : (
+        // eslint-disable-next-line @next/next/no-img-element
         <img
           src={currentSrc}
           alt={filename}

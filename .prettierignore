@@ -1,7 +1,9 @@
-node_modules
-.turbo
-.next
-dist
-build
-tmp
-apps/api/ent/
+.wrangler/**
+**/.wrangler/**
+**/node_modules/**
+.next/**
+dist/**
+bin/**
+pnpm-lock.yaml
+worker-configuration.d.ts
+*.go

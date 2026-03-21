@@ -1,3 +1,5 @@
+// Package config manages application-wide environment variable loading
+// and validation for the Engram API.
 package config
 
 import (

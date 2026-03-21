@@ -18,7 +18,8 @@
       "dependsOn": ["^check-types"]
     },
     "lint": {
-      "dependsOn": ["^lint"]
+      "dependsOn": ["^lint"],
+      "passThroughEnv": ["LocalAppData", "GOLANGCI_LINT_CACHE"]
     },
     "format": {
       "outputs": []

@@ -1,26 +1,26 @@
 {
-	"name": "@engram/media-proxy",
-	"version": "0.0.0",
-	"private": true,
-	"scripts": {
-		"deploy": "wrangler deploy",
-		"dev": "wrangler dev",
-		"start": "wrangler dev",
-		"test": "vitest",
-		"cf-typegen": "wrangler types",
-		"check-types": "pnpm cf-typegen && tsc --noEmit",
-		"lint": "eslint .",
-		"format": "prettier --write ."
-	},
-	"devDependencies": {
-		"@cloudflare/vitest-pool-workers": "^0.12.4",
-		"@types/node": "^25.5.0",
-		"typescript": "^5.5.2",
-		"vitest": "~3.2.0",
-		"wrangler": "^4.76.0"
-	},
-	"dependencies": {
-		"aws4fetch": "^1.0.20",
-		"jose": "^6.2.2"
-	}
+  "name": "@engram/media-proxy",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "start": "wrangler dev",
+    "test": "vitest",
+    "cf-typegen": "wrangler types",
+    "check-types": "pnpm cf-typegen && tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.12.4",
+    "@types/node": "^25.5.0",
+    "typescript": "^5.5.2",
+    "vitest": "~3.2.0",
+    "wrangler": "^4.76.0"
+  },
+  "dependencies": {
+    "aws4fetch": "^1.0.20",
+    "jose": "^6.2.2"
+  }
 }
