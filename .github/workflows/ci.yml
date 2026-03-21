@@ -37,9 +37,15 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version-file: "apps/api/go.mod"
+          cache-dependency-path: "apps/api/go.sum"
           cache: true
 
-      - name: Install
+      - name: ⬢ Install golangci-lint
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.64.5
+          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+
+      - name: Install JS Dependencies
         run: pnpm install
 
       - name: Cache Turbo
