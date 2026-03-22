@@ -13,8 +13,8 @@
   ],
   "vars": {
     "B2_ENDPOINT": "s3.us-east-005.backblazeb2.com",
-    "B2_BUCKET_NAME": "engram-dev",
-    "JWKS_URL": "https://stunning-koi-71.clerk.accounts.dev/.well-known/jwks.json",
+    "B2_BUCKET_NAME": "engram",
+    "JWKS_URL": "https://clerk.engram.aidanfroggatt.com/.well-known/jwks.json",
   },
   "observability": {
     "enabled": true,
