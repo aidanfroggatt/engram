@@ -33,7 +33,7 @@ func Load() *Config {
 		B2AppKey:           requireEnv("B2_APP_KEY"),
 		B2Endpoint:         requireEnv("B2_ENDPOINT"),
 		B2BucketName:       requireEnv("B2_BUCKET_NAME"),
-		CloudflareProxyURL: requireEnv("CloudflareProxyURL"),
+		CloudflareProxyURL: requireEnv("CLOUDFLARE_PROXY_URL"),
 	}
 }
 
