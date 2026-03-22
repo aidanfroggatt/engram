@@ -217,12 +217,29 @@ sequenceDiagram
     Edge-->>Client: Final Edge Delivery (HIT/MISS)
 ```
 
-## 🛠️ Developer Experience (DX) & CI/CD
+## 🛠️ Engineering Rigor & Automation
 
-Engram is engineered to scale not just in traffic, but in maintainability. The monorepo is currently orchestrated by **Turborepo** for aggressive build caching and parallel task execution.
+Engram is designed for high-velocity, solo development without sacrificing production stability. The monorepo utilizes a "Quality Gate" philosophy, where no code reaches `main` without passing a battery of automated checks.
 
-### Current Tooling
+### 🔄 The Quality Gate (CI)
 
-- **Turborepo:** Workspace orchestration and remote caching.
-- **pnpm:** Strict, fast, and disk-space-efficient package management.
-- **ESLint & TypeScript:** Shared configuration packages ensuring parity across the Web and Proxy environments.
+Our **GitHub Actions** pipeline serves as the ultimate arbiter of code quality. Every Pull Request triggers a parallelized suite of tasks orchestrated by **Turborepo**:
+
+- **Linting & Formatting:** Enforces a zero-warning policy across the Go and TypeScript stacks using ESLint 9 and Prettier.
+- **Type Integrity:** Validates the entire workspace graph, ensuring shared packages (`@repo/ui`, etc.) remain compatible with their consumers.
+- **Test Suites:** - **Edge Logic:** Vitest-powered co-located tests for the Media Proxy, verifying auth partitions and B2 signing logic.
+  - **Core API:** Native Go test suites verifying configuration loaders and metadata orchestration.
+
+### 🛡️ Security & Integrity
+
+- **Verified Commits:** The repository enforces **SSH Commit Signing**. Every commit is cryptographically verified to ensure the integrity of the history and prevent identity spoofing.
+- **Branch Protection:** The `main` branch is locked. Merges require a green CI status, a linear history, and an explicit Pull Request, protecting the production environment from accidental "hot-fixes."
+- **Pre-commit Rigor:** Local development is guarded by **Husky** and **lint-staged**. Linting and formatting are applied automatically before a commit can even be created, keeping the remote history clean.
+
+### 🚀 Continuous Delivery (CD)
+
+Deployments are entirely hands-off and integrated directly into the Git workflow:
+
+- **Web (Vercel):** Every PR generates a unique preview environment. Merges to `main` trigger an atomic production roll-out.
+- **Media Proxy (Cloudflare):** Managed via native GitHub integration, deploying the edge gateway to 300+ global locations on every merge.
+- **API (Render):** Our Go "Librarian" is automatically built and deployed as a high-performance web service, complete with automatic health checks and zero-downtime deploys.
