@@ -16,7 +16,7 @@ func setupTestEnv() {
 	os.Setenv("B2_APP_KEY", "test_key")
 	os.Setenv("B2_ENDPOINT", "s3.us-east-005.backblazeb2.com")
 	os.Setenv("B2_BUCKET_NAME", "test-bucket")
-	os.Setenv("CloudflareProxyURL", "http://localhost:8787")
+	os.Setenv("CLOUDFLARE_PROXY_URL", "http://localhost:8787")
 }
 
 func TestSetup(t *testing.T) {
