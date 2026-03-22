@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"context"
-	"log"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -10,7 +10,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// Define a custom type for context keys to avoid collisions
 type contextKey string
 
 const UserIDKey contextKey = "user_id"
@@ -19,20 +18,16 @@ type AuthMiddleware struct {
 	jwks *keyfunc.JWKS
 }
 
-// NewAuthMiddleware initializes the JWKS cache from Clerk
-func NewAuthMiddleware(jwksURL string) *AuthMiddleware {
-	// Fetch and cache the public keys on startup
+func NewAuthMiddleware(jwksURL string) (*AuthMiddleware, error) {
 	jwks, err := keyfunc.Get(jwksURL, keyfunc.Options{})
 	if err != nil {
-		log.Fatalf("Failed to create JWKS from URL: %v", err)
+		return nil, fmt.Errorf("failed to create JWKS: %w", err)
 	}
-	return &AuthMiddleware{jwks: jwks}
+	return &AuthMiddleware{jwks: jwks}, nil
 }
 
-// RequireAuth wraps an http.Handler to enforce Clerk JWT validation
 func (m *AuthMiddleware) RequireAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// 1. Extract the Authorization header
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
 			http.Error(w, "Unauthorized: Missing or invalid Authorization header", http.StatusUnauthorized)
@@ -41,14 +36,12 @@ func (m *AuthMiddleware) RequireAuth(next http.Handler) http.Handler {
 
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 
-		// 2. Parse and verify the token using the cached JWKS
 		token, err := jwt.Parse(tokenString, m.jwks.Keyfunc)
 		if err != nil || !token.Valid {
 			http.Error(w, "Unauthorized: Invalid token", http.StatusUnauthorized)
 			return
 		}
 
-		// 3. Extract the sub (subject / Clerk User ID)
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok {
 			http.Error(w, "Unauthorized: Invalid token claims", http.StatusUnauthorized)
@@ -61,10 +54,8 @@ func (m *AuthMiddleware) RequireAuth(next http.Handler) http.Handler {
 			return
 		}
 
-		// 4. Inject the user_id into the request context for downstream handlers
 		ctx := context.WithValue(r.Context(), UserIDKey, userID)
 
-		// 5. Pass execution to the next handler with the new context
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
