@@ -1,3 +1,7 @@
+# Root level configuration for the entire environment
+previews:
+  generation: automatic # This fixes the "Update to off" warning
+
 services:
   - type: web
     name: engram-api
@@ -10,8 +14,20 @@ services:
         value: production
       - key: PORT
         value: 8080
-      # Use "sync: false" for secrets you'll add in the dashboard
+      # Use sync: false for secrets you've already added in the dashboard
       - key: DATABASE_URL
         sync: false
       - key: JWKS_URL
+        sync: false
+      - key: B2_KEY_ID
+        sync: false
+      - key: B2_APP_KEY
+        sync: false
+      - key: B2_ENDPOINT
+        sync: false
+      - key: B2_BUCKET_NAME
+        sync: false
+      - key: CloudflareProxyURL
+        sync: false
+      - key: ALLOWED_ORIGIN
         sync: false
