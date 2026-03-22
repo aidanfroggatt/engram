@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: engram-api
+    runtime: go
+    rootDir: apps/api
+    buildCommand: go build -o engram-api main.go
+    startCommand: ./engram-api
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: PORT
+        value: 8080
+      # Use "sync: false" for secrets you'll add in the dashboard
+      - key: DATABASE_URL
+        sync: false
+      - key: JWKS_URL
+        sync: false
