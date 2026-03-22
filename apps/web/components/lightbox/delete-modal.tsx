@@ -60,8 +60,8 @@ export function DeleteModal({
             <AlertTriangle /> Delete Asset
           </DialogTitle>
           <DialogDescription>
-            This action is permanent. The asset will be removed from your vault
-            and storage provider.
+            This action is permanent. The asset will be removed from your vault and storage
+            provider.
           </DialogDescription>
         </DialogHeader>
 

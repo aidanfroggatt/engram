@@ -31,8 +31,7 @@ const (
 	CompletedLog   = "./scripts/ig_migrate/completed.json"
 )
 
-// --- JSON Struct Definition ---
-// This perfectly maps to the structure of your posts_1.json file
+// IGExport represents the schema of the Instagram posts_1.json export file.
 type IGExport []struct {
 	Media []struct {
 		URI               string `json:"uri"`
@@ -85,7 +84,9 @@ func main() {
 	// 3. Load Resumability State
 	completed := make(map[string]bool)
 	if data, err := os.ReadFile(CompletedLog); err == nil {
-		json.Unmarshal(data, &completed)
+		if err := json.Unmarshal(data, &completed); err != nil {
+			log.Printf("[WARN] Failed to parse completed log: %v. Starting fresh.", err)
+		}
 	}
 	fmt.Printf("Loaded %d previously completed assets.\n", len(completed))
 
@@ -117,7 +118,7 @@ func main() {
 
 			// Extract precise GPS coordinates (if they exist)
 			var lat, lng *float64
-			
+
 			// Check Photo Exif
 			if len(media.MediaMetadata.PhotoMetadata.ExifData) > 0 {
 				exif := media.MediaMetadata.PhotoMetadata.ExifData[0]
@@ -126,7 +127,7 @@ func main() {
 					lat, lng = &l1, &l2
 				}
 			}
-			
+
 			// Check Video Exif
 			if len(media.MediaMetadata.VideoMetadata.ExifData) > 0 {
 				exif := media.MediaMetadata.VideoMetadata.ExifData[0]
@@ -138,7 +139,7 @@ func main() {
 
 			// Find physical file using the URI provided in the JSON
 			physicalPath := filepath.Join(ExportBasePath, media.URI)
-			
+
 			ext := strings.ToLower(filepath.Ext(physicalPath))
 			mimeType := mime.TypeByExtension(ext)
 			if mimeType == "" {
@@ -204,6 +205,13 @@ func main() {
 }
 
 func saveProgress(completed map[string]bool) {
-	data, _ := json.MarshalIndent(completed, "", "  ")
-	os.WriteFile(CompletedLog, data, 0644)
+	data, err := json.MarshalIndent(completed, "", "  ")
+	if err != nil {
+		log.Printf("[ERROR] Failed to marshal progress: %v", err)
+		return
+	}
+
+	if err := os.WriteFile(CompletedLog, data, 0644); err != nil {
+		log.Printf("[ERROR] Failed to save progress to disk: %v", err)
+	}
 }

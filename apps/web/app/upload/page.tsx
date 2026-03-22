@@ -45,12 +45,8 @@ function StagedAssetCard({ asset, onUpdate, onRemove }: StagedAssetCardProps) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   // Local state for coordinates to allow seamless typing of "-" and "."
-  const [localLat, setLocalLat] = useState<string>(
-    asset.latitude?.toString() ?? "",
-  );
-  const [localLng, setLocalLng] = useState<string>(
-    asset.longitude?.toString() ?? "",
-  );
+  const [localLat, setLocalLat] = useState<string>(asset.latitude?.toString() ?? "");
+  const [localLng, setLocalLng] = useState<string>(asset.longitude?.toString() ?? "");
 
   useEffect(() => {
     const url = URL.createObjectURL(asset.file);
@@ -72,7 +68,7 @@ function StagedAssetCard({ asset, onUpdate, onRemove }: StagedAssetCardProps) {
   const handleCoordChange = (
     e: ChangeEvent<HTMLInputElement>,
     setter: (val: string) => void,
-    field: "latitude" | "longitude",
+    field: "latitude" | "longitude"
   ): void => {
     const val = e.target.value;
     if (val === "" || /^-?\d*\.?\d*$/.test(val)) {
@@ -86,10 +82,7 @@ function StagedAssetCard({ asset, onUpdate, onRemove }: StagedAssetCardProps) {
     }
   };
 
-  const handleCoordBlur = (
-    val: string,
-    field: "latitude" | "longitude",
-  ): void => {
+  const handleCoordBlur = (val: string, field: "latitude" | "longitude"): void => {
     const parsed = parseFloat(val);
     if (isNaN(parsed)) {
       onUpdate(asset.id, { [field]: null });
@@ -106,9 +99,7 @@ function StagedAssetCard({ asset, onUpdate, onRemove }: StagedAssetCardProps) {
   return (
     <div
       className={`p-4 md:p-5 border border-border/50 rounded-2xl bg-muted/5 backdrop-blur-sm transition-all duration-500 ${
-        isSuccess
-          ? "opacity-40 grayscale"
-          : "hover:bg-muted/10 hover:border-border shadow-sm"
+        isSuccess ? "opacity-40 grayscale" : "hover:bg-muted/10 hover:border-border shadow-sm"
       }`}
     >
       <div className="flex gap-4 md:gap-6">
@@ -116,10 +107,7 @@ function StagedAssetCard({ asset, onUpdate, onRemove }: StagedAssetCardProps) {
         <div className="relative h-24 w-24 md:h-28 md:w-28 rounded-xl bg-black overflow-hidden shrink-0 border border-border/50 shadow-inner">
           {previewUrl &&
             (asset.mimeType.startsWith("video/") ? (
-              <video
-                src={previewUrl}
-                className="w-full h-full object-cover opacity-90"
-              />
+              <video src={previewUrl} className="w-full h-full object-cover opacity-90" />
             ) : (
               <Image
                 src={previewUrl}
@@ -191,9 +179,7 @@ function StagedAssetCard({ asset, onUpdate, onRemove }: StagedAssetCardProps) {
                   placeholder="LAT"
                   disabled={isUploading || isSuccess}
                   value={localLat}
-                  onChange={(e) =>
-                    handleCoordChange(e, setLocalLat, "latitude")
-                  }
+                  onChange={(e) => handleCoordChange(e, setLocalLat, "latitude")}
                   onBlur={() => handleCoordBlur(localLat, "latitude")}
                   className="h-9 pl-9 text-xs font-mono rounded-lg border-border/50 bg-background/50 focus-visible:ring-1 focus-visible:ring-foreground transition-all"
                 />
@@ -204,9 +190,7 @@ function StagedAssetCard({ asset, onUpdate, onRemove }: StagedAssetCardProps) {
                   placeholder="LNG"
                   disabled={isUploading || isSuccess}
                   value={localLng}
-                  onChange={(e) =>
-                    handleCoordChange(e, setLocalLng, "longitude")
-                  }
+                  onChange={(e) => handleCoordChange(e, setLocalLng, "longitude")}
                   onBlur={() => handleCoordBlur(localLng, "longitude")}
                   className="h-9 px-3 text-xs font-mono rounded-lg border-border/50 bg-background/50 focus-visible:ring-1 focus-visible:ring-foreground transition-all"
                 />
@@ -216,8 +200,7 @@ function StagedAssetCard({ asset, onUpdate, onRemove }: StagedAssetCardProps) {
 
           {isErrorState && (
             <p className="text-[9px] text-destructive font-bold uppercase flex items-center gap-1.5 mt-2 bg-destructive/10 px-2 py-1.5 rounded-md inline-flex">
-              <AlertCircle className="w-3 h-3" />{" "}
-              {asset.errorMessage || "Network Error"}
+              <AlertCircle className="w-3 h-3" /> {asset.errorMessage || "Network Error"}
             </p>
           )}
         </div>
@@ -235,9 +218,7 @@ export default function UploadBatchPage() {
   const [isParsing, setIsParsing] = useState<boolean>(false);
   const [isCommitting, setIsCommitting] = useState<boolean>(false);
 
-  const handleFileSelect = async (
-    e: ChangeEvent<HTMLInputElement>,
-  ): Promise<void> => {
+  const handleFileSelect = async (e: ChangeEvent<HTMLInputElement>): Promise<void> => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
@@ -255,7 +236,7 @@ export default function UploadBatchPage() {
             file,
             uploadStatus: "idle",
           };
-        }),
+        })
       );
       setStagedFiles((prev) => [...prev, ...results]);
       toast.success(`${filesArray.length} assets staged.`, { id: "parsing" });
@@ -271,10 +252,9 @@ export default function UploadBatchPage() {
   };
 
   const pendingFiles = stagedFiles.filter(
-    (f) => f.uploadStatus === "idle" || f.uploadStatus === "error",
+    (f) => f.uploadStatus === "idle" || f.uploadStatus === "error"
   );
-  const isReadyToCommit =
-    pendingFiles.length > 0 && pendingFiles.every((f) => f.captureTime);
+  const isReadyToCommit = pendingFiles.length > 0 && pendingFiles.every((f) => f.captureTime);
 
   const handleCommitBatch = async (): Promise<void> => {
     if (!isReadyToCommit) return;
@@ -283,9 +263,7 @@ export default function UploadBatchPage() {
 
     for (const file of pendingFiles) {
       setStagedFiles((prev) =>
-        prev.map((f) =>
-          f.id === file.id ? { ...f, uploadStatus: "uploading" } : f,
-        ),
+        prev.map((f) => (f.id === file.id ? { ...f, uploadStatus: "uploading" } : f))
       );
 
       const result = await uploadFile(file);
@@ -293,19 +271,15 @@ export default function UploadBatchPage() {
       if (result.success) {
         setStagedFiles((prev) =>
           prev.map((f) =>
-            f.id === file.id
-              ? { ...f, uploadStatus: "success", fileKey: result.fileKey }
-              : f,
-          ),
+            f.id === file.id ? { ...f, uploadStatus: "success", fileKey: result.fileKey } : f
+          )
         );
       } else {
         hasErrors = true;
         setStagedFiles((prev) =>
           prev.map((f) =>
-            f.id === file.id
-              ? { ...f, uploadStatus: "error", errorMessage: result.error }
-              : f,
-          ),
+            f.id === file.id ? { ...f, uploadStatus: "error", errorMessage: result.error } : f
+          )
         );
       }
     }
@@ -411,13 +385,9 @@ export default function UploadBatchPage() {
               <StagedAssetCard
                 key={file.id}
                 asset={file}
-                onRemove={(id: string) =>
-                  setStagedFiles((prev) => prev.filter((f) => f.id !== id))
-                }
+                onRemove={(id: string) => setStagedFiles((prev) => prev.filter((f) => f.id !== id))}
                 onUpdate={(id: string, up: Partial<StagedFile>) =>
-                  setStagedFiles((prev) =>
-                    prev.map((f) => (f.id === id ? { ...f, ...up } : f)),
-                  )
+                  setStagedFiles((prev) => prev.map((f) => (f.id === id ? { ...f, ...up } : f)))
                 }
               />
             ))}

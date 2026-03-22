@@ -1,22 +1,22 @@
 {
-	"$schema": "../../node_modules/wrangler/config-schema.json",
-	"name": "engram-media-proxy",
-	"main": "index.ts",
-	"compatibility_date": "2026-03-10",
-	"compatibility_flags": ["nodejs_compat"],
-	"routes": [
-		{
-			"pattern": "media.engram.aidanfroggatt.com",
-			"zone_name": "aidanfroggatt.com",
-			"custom_domain": true,
-		},
-	],
-	"vars": {
-		"B2_ENDPOINT": "s3.us-east-005.backblazeb2.com",
-		"B2_BUCKET_NAME": "engram-dev",
-		"JWKS_URL": "https://stunning-koi-71.clerk.accounts.dev/.well-known/jwks.json",
-	},
-	"observability": {
-		"enabled": true,
-	},
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "engram-media-proxy",
+  "main": "index.ts",
+  "compatibility_date": "2026-03-10",
+  "compatibility_flags": ["nodejs_compat"],
+  "routes": [
+    {
+      "pattern": "media.engram.aidanfroggatt.com",
+      "zone_name": "aidanfroggatt.com",
+      "custom_domain": true,
+    },
+  ],
+  "vars": {
+    "B2_ENDPOINT": "s3.us-east-005.backblazeb2.com",
+    "B2_BUCKET_NAME": "engram-dev",
+    "JWKS_URL": "https://stunning-koi-71.clerk.accounts.dev/.well-known/jwks.json",
+  },
+  "observability": {
+    "enabled": true,
+  },
 }

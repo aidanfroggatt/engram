@@ -9,9 +9,7 @@ export interface ParsedMediaMetadata {
   longitude: number | null;
 }
 
-export async function extractMetadata(
-  file: File,
-): Promise<ParsedMediaMetadata> {
+export async function extractMetadata(file: File): Promise<ParsedMediaMetadata> {
   // 1. Set the default fallback to the OS file creation/modification time
   let captureTime = new Date(file.lastModified);
   let latitude: number | null = null;
@@ -45,7 +43,7 @@ export async function extractMetadata(
   } catch (error) {
     console.warn(
       `Could not extract EXIF from ${file.name}. Defaulting to file system metadata.`,
-      error,
+      error
     );
   }
 

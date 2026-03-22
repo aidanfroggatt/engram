@@ -18,7 +18,7 @@ func CORS(next http.Handler, allowedOrigin string) http.Handler {
 			w.WriteHeader(http.StatusOK)
 			return
 		}
-		
+
 		next.ServeHTTP(w, r)
 	})
 }

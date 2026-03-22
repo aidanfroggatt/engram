@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TURBO_TELEMETRY_DISABLED: 1
+  TURBO_SCM_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+
+jobs:
+  quality-gate:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: "package.json"
+          cache: "pnpm"
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: "apps/api/go.mod"
+          cache-dependency-path: "apps/api/go.sum"
+          cache: true
+
+      - name: Install JS Dependencies
+        run: pnpm install
+
+      - name: Cache Turbo
+        uses: dtinth/setup-github-actions-caching-for-turbo@v1
+
+      - name: 🧹 Format
+        run: pnpm turbo format --affected
+
+      - name: ⬢ Lint
+        run: pnpm turbo lint --affected
+
+      - name: 🔠 Types
+        run: pnpm turbo check-types --affected
+
+      - name: 🏗️ Build
+        run: pnpm turbo build --affected
+
+      - name: 🧪 Test
+        run: pnpm turbo test --affected

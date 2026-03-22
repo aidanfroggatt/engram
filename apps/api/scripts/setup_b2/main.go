@@ -44,7 +44,7 @@ func main() {
 	corsRule := types.CORSRule{
 		AllowedHeaders: []string{"*"},
 		AllowedMethods: []string{"GET", "PUT", "POST", "HEAD"},
-		AllowedOrigins: []string{"*"}, 
+		AllowedOrigins: []string{"*"},
 		ExposeHeaders:  []string{"ETag"},
 		MaxAgeSeconds:  aws.Int32(3000),
 	}
@@ -58,7 +58,7 @@ func main() {
 				CORSRules: []types.CORSRule{corsRule},
 			},
 		})
-		
+
 		if err != nil {
 			fmt.Printf("FAILED\n [!] Error: %v\n", err)
 		} else {

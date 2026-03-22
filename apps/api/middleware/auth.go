@@ -63,7 +63,7 @@ func (m *AuthMiddleware) RequireAuth(next http.Handler) http.Handler {
 
 		// 4. Inject the user_id into the request context for downstream handlers
 		ctx := context.WithValue(r.Context(), UserIDKey, userID)
-		
+
 		// 5. Pass execution to the next handler with the new context
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})

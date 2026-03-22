@@ -20,13 +20,13 @@ export function useMediaUpload() {
     try {
       // 1. Get B2 Ticket
       // Generics <ReturnType, BodyType> enforce strict typing automatically
-      const ticket = await api.post<
-        GoTicketResponse,
-        { filename: string; mimeType: string }
-      >("/api/upload/url", {
-        filename: stagedFile.fileName,
-        mimeType: stagedFile.mimeType,
-      });
+      const ticket = await api.post<GoTicketResponse, { filename: string; mimeType: string }>(
+        "/api/upload/url",
+        {
+          filename: stagedFile.fileName,
+          mimeType: stagedFile.mimeType,
+        }
+      );
 
       // 2. Stream Binary to B2
       // We use api.raw() because B2 requires a direct binary stream, not a JSON payload.

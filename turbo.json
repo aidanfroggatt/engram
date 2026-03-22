@@ -14,12 +14,31 @@
         "TMP"
       ]
     },
+    "check-types": {
+      "dependsOn": ["^check-types"]
+    },
+    "lint": {
+      "dependsOn": ["^lint"],
+      "passThroughEnv": ["LocalAppData", "GOLANGCI_LINT_CACHE"]
+    },
+    "format": {
+      "outputs": []
+    },
+    "test": {
+      "dependsOn": ["^test"],
+      "passThroughEnv": [
+        "LocalAppData",
+        "GOPATH",
+        "USERPROFILE",
+        "SystemRoot",
+        "SystemDrive",
+        "TEMP",
+        "TMP"
+      ]
+    },
     "deploy": {
       "dependsOn": ["build", "lint"],
       "cache": false
-    },
-    "lint": {
-      "dependsOn": ["^lint"]
     },
     "dev": {
       "cache": false,

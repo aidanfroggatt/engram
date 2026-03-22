@@ -1,3 +1,5 @@
+// Package router handles the multiplexing and routing of all incoming
+// API requests for the Engram backend.
 package router
 
 import (

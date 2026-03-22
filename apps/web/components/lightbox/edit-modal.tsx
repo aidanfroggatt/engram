@@ -77,9 +77,7 @@ export function EditModal({
             <Input
               type="datetime-local"
               value={form.captureTime}
-              onChange={(e) =>
-                setForm({ ...form, captureTime: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, captureTime: e.target.value })}
             />
           </Field>
 

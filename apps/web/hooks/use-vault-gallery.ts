@@ -25,17 +25,13 @@ export function useVaultGallery() {
       setError(null);
 
       try {
-        const endpoint = cursor
-          ? `/api/media?cursor=${encodeURIComponent(cursor)}`
-          : "/api/media";
+        const endpoint = cursor ? `/api/media?cursor=${encodeURIComponent(cursor)}` : "/api/media";
 
         // Fetch the paginated response
         const res = await api.get<PaginatedMediaResponse>(endpoint);
 
         // Extract res.data (which is MediaAsset[]) and append or replace
-        setMedia((prev) =>
-          isLoadMore ? [...prev, ...(res.data || [])] : res.data || [],
-        );
+        setMedia((prev) => (isLoadMore ? [...prev, ...(res.data || [])] : res.data || []));
 
         // Save the new cursor for the next call
         setNextCursor(res.nextCursor || null);
@@ -43,9 +39,7 @@ export function useVaultGallery() {
         if (err instanceof ApiError && err.status === 404) {
           if (!isLoadMore) setMedia([]);
         } else {
-          setError(
-            err instanceof Error ? err.message : "An unexpected error occurred",
-          );
+          setError(err instanceof Error ? err.message : "An unexpected error occurred");
         }
       } finally {
         setIsLoading(false);
@@ -53,7 +47,7 @@ export function useVaultGallery() {
         fetchLock.current = false;
       }
     },
-    [api],
+    [api]
   );
 
   useEffect(() => {

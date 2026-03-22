@@ -1,12 +1,7 @@
 "use client";
 
 import { useAuth } from "@clerk/nextjs";
-import {
-  AlertCircle,
-  FileVideo,
-  Image as ImageIcon,
-  PlayCircle,
-} from "lucide-react";
+import { AlertCircle, FileVideo, Image as ImageIcon, PlayCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Skeleton } from "@/components/ui/skeleton";
@@ -35,7 +30,7 @@ export function MediaRenderer({
   const filename = asset.fileKey.split("/").pop() || "Vault Asset";
 
   // Fetch a fresh token whenever the asset changes
-useEffect(() => {
+  useEffect(() => {
     let isMounted = true;
 
     async function authorize() {
@@ -47,13 +42,15 @@ useEffect(() => {
           url.searchParams.set("token", token);
           setAuthUrl(url.toString());
         }
-      } catch (err) {
+      } catch {
         if (isMounted) setHasError(true);
       }
     }
 
     authorize();
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, [asset.url, getToken]);
 
   if (hasError) {
@@ -95,9 +92,7 @@ useEffect(() => {
             className={cn(
               "transition-opacity duration-500",
               showSkeleton ? "opacity-0" : "opacity-100",
-              isThumbnail
-                ? "h-full w-full object-cover"
-                : "max-h-full max-w-full object-contain",
+              isThumbnail ? "h-full w-full object-cover" : "max-h-full max-w-full object-contain"
             )}
             onLoadedData={() => setIsLoading(false)}
             onError={() => setHasError(true)}
@@ -122,9 +117,7 @@ useEffect(() => {
           className={cn(
             "transition-opacity duration-500",
             showSkeleton ? "opacity-0" : "opacity-100",
-            isThumbnail
-              ? "h-full w-full object-cover"
-              : "max-h-full max-w-full object-contain",
+            isThumbnail ? "h-full w-full object-cover" : "max-h-full max-w-full object-contain"
           )}
           onLoad={() => setIsLoading(false)}
           onError={() => setHasError(true)}

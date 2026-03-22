@@ -24,8 +24,8 @@ func (MediaAsset) Fields() []ent.Field {
 			NotEmpty().
 			Immutable(),
 		field.String("file_key"). // The B2 Path (e.g., user_123/abc.jpeg)
-			NotEmpty().
-			Unique(),
+						NotEmpty().
+						Unique(),
 		field.String("mime_type").
 			NotEmpty(),
 		field.Time("capture_time"),

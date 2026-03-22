@@ -4,6 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "air",
+    "test": "go test ./... -v",
+    "format": "gofmt -w .",
+    "check-types": "go vet ./...",
+    "lint": "go tool golangci-lint run",
     "build": "go build -o bin/api main.go"
   }
 }
