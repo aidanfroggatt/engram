@@ -29,9 +29,9 @@ export default function GalleryPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center">
-        <Logo showText={false} iconSize={32} />
-        <p className="mt-4 animate-pulse font-mono text-xs uppercase tracking-widest text-muted-foreground">
+      <div className="flex min-h-dvh flex-col items-center justify-center bg-background">
+        <Logo showText={false} iconSize={32} className="animate-pulse" />
+        <p className="mt-6 font-mono text-xs uppercase tracking-widest text-muted-foreground animate-pulse">
           Establishing Connection...
         </p>
       </div>
@@ -39,20 +39,21 @@ export default function GalleryPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* --- TOP NAVIGATION --- */}
-      <header className="fixed top-0 z-40 w-full border-b bg-background/95 backdrop-blur-md">
+    <div className="min-h-dvh flex flex-col bg-background">
+      <header className="fixed top-0 z-40 w-full border-b bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/60">
         <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between px-4 md:px-8">
           <div className="flex items-center gap-4">
             <Logo showText={false} iconSize={20} />
             <div className="flex flex-col">
               <span className="text-xs font-bold uppercase tracking-tighter">Engram</span>
-              <Badge variant="outline" className="h-4 px-1.5 font-mono text-[8px] uppercase">
+              <Badge
+                variant="outline"
+                className="h-4 px-1.5 font-mono text-[8px] uppercase border-muted-foreground/30"
+              >
                 {media.length} Nodes
               </Badge>
             </div>
           </div>
-
           <div className="flex items-center gap-3">
             <Button variant="outline" size="sm" asChild className="hidden md:flex">
               <Link href="/upload">
@@ -67,27 +68,13 @@ export default function GalleryPage() {
           </div>
         </div>
       </header>
-
-      {/* --- MOBILE ACTION BAR --- */}
-      <div className="fixed bottom-6 inset-x-0 z-40 flex justify-center md:hidden pointer-events-none">
-        <Button size="lg" asChild className="rounded-full shadow-lg pointer-events-auto">
-          <Link href="/upload">
-            <Plus className="mr-2 h-5 w-5" /> Upload
-          </Link>
-        </Button>
-      </div>
-
-      {/* --- GALLERY STAGE --- */}
-      <main className="mx-auto w-full max-w-[1600px] flex-1 px-4 pt-24 pb-24 md:px-8">
-        {/* TIME SCALE SELECTOR (Integrated)
-            Uses Shadcn ToggleGroup for semantic "single-choice" selection.
-        */}
-        <div className="mb-10">
+      <main className="mx-auto w-full max-w-400 flex-1 px-4 pt-24 pb-32 md:pb-24 md:px-8">
+        <div className="mb-8 overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide">
           <ToggleGroup
             type="single"
             value={timeScale}
             onValueChange={(val) => val && setTimeScale(val as TimeScale)}
-            className="justify-start"
+            className="justify-start inline-flex"
           >
             <ToggleGroupItem
               value="week"
@@ -112,44 +99,45 @@ export default function GalleryPage() {
             </ToggleGroupItem>
           </ToggleGroup>
         </div>
-
         {media.length === 0 ? (
-          <Card className="flex flex-col items-center justify-center border-dashed py-32 text-center">
+          <Card className="flex flex-col items-center justify-center border-dashed py-32 text-center bg-muted/30">
             <CardContent>
-              <DatabaseBackup className="mb-4 h-12 w-12 text-muted-foreground/20 mx-auto" />
+              <DatabaseBackup className="mb-4 h-12 w-12 text-muted-foreground/30 mx-auto" />
               <p className="text-sm font-medium text-muted-foreground">Vault Partition Empty</p>
-              <Button variant="link" asChild className="mt-2">
+              <Button variant="link" asChild className="mt-2 text-primary">
                 <Link href="/upload">Initialize first batch</Link>
               </Button>
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-12">
+          <div className="space-y-12 animate-in fade-in duration-500">
             {Object.entries(groupedMedia).map(([label, assets]) => (
               <section key={label}>
-                {/* Sticky Section Header */}
-                <div className="sticky top-16 z-30 bg-background/95 py-4 flex items-center gap-4">
-                  <h2 className="text-sm font-bold uppercase tracking-widest">{label}</h2>
+                <div className="sticky top-16 z-30 bg-background/95 backdrop-blur-sm py-4 flex items-center gap-4 supports-[backdrop-filter]:bg-background/80">
+                  <h2 className="text-sm font-bold uppercase tracking-widest text-foreground/90">
+                    {label}
+                  </h2>
                   <Separator className="flex-1" />
-                  <Badge variant="secondary" className="font-mono text-[10px]">
+                  <Badge
+                    variant="secondary"
+                    className="font-mono text-[10px] text-muted-foreground"
+                  >
                     {assets.length}
                   </Badge>
                 </div>
-
-                {/* The Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3 mt-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-1 md:gap-3 mt-2">
                   {assets.map((asset, i) => (
                     <button
                       key={asset.id}
                       onClick={() => setActiveAsset(asset)}
                       aria-label={`Inspect asset from ${label}`}
                       aria-haspopup="dialog"
-                      className="group relative aspect-square overflow-hidden rounded-md border bg-muted transition-colors hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                      className="group relative aspect-square overflow-hidden md:rounded-md bg-muted transition-all hover:ring-2 hover:ring-primary hover:ring-offset-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                     >
                       <MediaRenderer asset={asset} isThumbnail={true} priority={i < 8} />
                       {asset.latitude && (
-                        <div className="absolute right-2 top-2">
-                          <MapPin className="h-3 w-3 text-primary opacity-0 transition-opacity group-hover:opacity-100" />
+                        <div className="absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-black/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100">
+                          <MapPin className="absolute right-2 top-2 h-3.5 w-3.5 text-white drop-shadow-md" />
                         </div>
                       )}
                     </button>
@@ -157,11 +145,14 @@ export default function GalleryPage() {
                 </div>
               </section>
             ))}
-
-            {/* Pagination */}
             {hasNextPage && (
               <div className="flex justify-center py-12">
-                <Button variant="secondary" onClick={loadMore} disabled={isFetchingNextPage}>
+                <Button
+                  variant="secondary"
+                  onClick={loadMore}
+                  disabled={isFetchingNextPage}
+                  className="w-full sm:w-auto"
+                >
                   {isFetchingNextPage && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   {isFetchingNextPage ? "Decrypting Nodes..." : "Load Older Archives"}
                 </Button>
@@ -170,8 +161,17 @@ export default function GalleryPage() {
           </div>
         )}
       </main>
-
-      {/* --- LIGHTBOX OVERLAY --- */}
+      <div className="fixed bottom-0 inset-x-0 z-40 h-24 bg-gradient-to-t from-background via-background/80 to-transparent flex items-end justify-center pb-6 md:hidden pointer-events-none">
+        <Button
+          size="lg"
+          asChild
+          className="rounded-full shadow-xl pointer-events-auto w-2/3 max-w-sm"
+        >
+          <Link href="/upload">
+            <Plus className="mr-2 h-5 w-5" /> Upload Media
+          </Link>
+        </Button>
+      </div>
       {activeAsset && (
         <LightboxRoot
           asset={activeAsset}

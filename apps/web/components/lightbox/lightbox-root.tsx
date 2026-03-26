@@ -40,39 +40,60 @@ export function LightboxRoot({
   return (
     <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
       <DialogContent
-        className="max-w-none w-screen h-screen p-0 border-none flex flex-col shadow-none [&>button]:hidden"
+        // Use 100dvh for mobile browser address bar fix.
+        // Add bg-black/95 for a slightly softer dark mode feel.
+        className="max-w-none w-screen h-[100dvh] p-0 border-none flex flex-col shadow-none bg-background/95 backdrop-blur-sm [&>button]:hidden sm:bg-background/90"
         onPointerDownOutside={(e) => e.preventDefault()}
       >
-        <DialogHeader className="flex-row items-center justify-between px-6 h-16 space-y-0 shrink-0">
-          <DialogTitle className="sr-only">Viewing {filename}</DialogTitle>
+        <DialogTitle className="sr-only">Viewing {filename}</DialogTitle>
 
+        {/* Floating Header: Position absolute so it overlays the top padding of the image container cleanly */}
+        <DialogHeader className="absolute top-0 left-0 right-0 z-50 flex-row items-center justify-between p-4 space-y-0 shrink-0 bg-gradient-to-b from-black/50 to-transparent text-white sm:p-6 sm:from-transparent sm:text-foreground">
           <DialogClose asChild>
-            <Button variant="ghost" size="icon" onClick={onClose}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full bg-black/20 hover:bg-black/40 text-white sm:bg-transparent sm:hover:bg-accent sm:text-foreground"
+              onClick={onClose}
+            >
               <X className="h-6 w-6" />
             </Button>
           </DialogClose>
 
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full bg-black/20 hover:bg-black/40 text-white sm:bg-transparent sm:hover:bg-accent sm:text-foreground"
+              asChild
+            >
               <a href={asset.url} download>
                 <Download className="h-5 w-5" />
               </a>
             </Button>
 
             <InfoSidebar asset={asset}>
-              <Button variant="ghost" size="icon">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-full bg-black/20 hover:bg-black/40 text-white sm:bg-transparent sm:hover:bg-accent sm:text-foreground"
+              >
                 <Info className="h-5 w-5" />
               </Button>
             </InfoSidebar>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-full bg-black/20 hover:bg-black/40 text-white sm:bg-transparent sm:hover:bg-accent sm:text-foreground"
+                >
                   <MoreVertical className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
 
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" className="w-56">
                 <EditModal asset={asset}>
                   <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                     <Pencil className="mr-2 h-4 w-4" />
@@ -85,7 +106,7 @@ export function LightboxRoot({
                 <DeleteModal asset={asset} onSuccess={onDeleteSuccess}>
                   <DropdownMenuItem
                     onSelect={(e) => e.preventDefault()}
-                    className="text-destructive focus:text-destructive"
+                    className="text-destructive focus:text-destructive focus:bg-destructive/10"
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
                     Delete Asset
@@ -96,8 +117,11 @@ export function LightboxRoot({
           </div>
         </DialogHeader>
 
-        <div className="flex-1 flex items-center justify-center overflow-hidden">
-          <MediaRenderer asset={asset} isThumbnail={false} priority={true} />
+        {/* Image Container: Added padding (p-4 sm:p-12) to ensure the image is never pressed against the screen edge */}
+        <div className="flex-1 flex items-center justify-center overflow-hidden p-4 pt-20 pb-safe sm:p-12 sm:pt-24">
+          <div className="relative w-full h-full flex items-center justify-center">
+            <MediaRenderer asset={asset} isThumbnail={false} priority={true} />
+          </div>
         </div>
       </DialogContent>
     </Dialog>
